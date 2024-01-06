@@ -134,16 +134,22 @@ export class RuleType
     #enumSet = null;
 
     /**
+     * 任意类型
+     * 跳过一切类型判定通过所有类型
+     * @type {boolean}
+     */
+    #any = false;
+
+    /**
      * 验证值是否符合此规则
      * @param {any} value
      */
     verify(value)
     {
-        if (this.#enumSet)
-        {
-            if (this.#enumSet.has(value))
-                return true;
-        }
+        if (this.#any)
+            return true;
+        if (this.#enumSet && this.#enumSet.has(value))
+            return true;
         switch (typeof (value))
         {
             case "number": {
@@ -276,6 +282,9 @@ export class RuleType
     {
         let ret = new RuleType();
 
+        if (this.#any || target.#any)
+            return RuleType.any();
+
         ret.#number = this.#number || target.#number;
         ret.#allowInteger = this.#allowInteger || target.#allowInteger;
         ret.#allowFinite = this.#allowFinite || target.#allowFinite;
@@ -338,6 +347,11 @@ export class RuleType
     {
         let ret = new RuleType();
 
+        if (this.#any)
+            return target;
+        else if (target.#any)
+            return this;
+
         ret.#number = this.#number && target.#number;
         ret.#allowInteger = this.#allowInteger && target.#allowInteger;
         ret.#allowFinite = this.#allowFinite && target.#allowFinite;
@@ -389,6 +403,17 @@ export class RuleType
                 ret.#enumSet = enumSet;
         }
 
+        return ret;
+    }
+
+    /**
+     * 创建任意类型的规则
+     * @returns {RuleType}
+     */
+    static any()
+    {
+        let ret = new RuleType();
+        ret.#any = true;
         return ret;
     }
 
@@ -485,7 +510,7 @@ export class RuleType
     static object(necessary, optional = {}, defaultValueRule = null)
     {
         let ret = new RuleType();
-        
+
         ret.#object = true;
         let necessaryEntries = Object.entries(necessary);
         let optionalEntries = Object.entries(optional);
