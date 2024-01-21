@@ -1,4 +1,4 @@
-import { RuleType } from "../src/data/RuleType.js";
+import { RuleType } from "../src/rule/RuleType.js";
 
 test("number -> pass", () =>
 {

@@ -56,6 +56,10 @@ export class MappingRules
     {
         if (eventRule.mappingRules != null)
             throw "The EventRule cannot be added repeatedly";
+        if (this.#eventNameMap.has(eventName))
+            throw "Cannot add an EventRule using an existing event name";
+        if (this.#shortNameMap.has(shortName))
+            throw "Cannot use this short name because the short name is already used";
         eventRule.mappingRules = this;
         eventRule.eventName = eventName;
         eventRule.shortName = shortName;
@@ -72,6 +76,8 @@ export class MappingRules
     {
         if (eventRule.mappingRules != null)
             throw "The EventRule cannot be added repeatedly";
+        if (this.#eventNameMap.has(eventName))
+            throw "Cannot add an EventRule using an existing event name";
         eventRule.mappingRules = this;
         eventRule.eventName = eventName;
         this.#eventNameMap.set(eventName, eventRule);
@@ -85,8 +91,14 @@ export class MappingRules
      */
     serverAddEventRule(eventName, eventRule)
     {
-        let shortName = this.#shortCount.toString(36);
-        this.#shortCount++;
+        let shortName = "";
+        do
+        {
+            shortName = this.#shortCount.toString(36);
+            this.#shortCount++;
+        }
+        while (this.#shortNameMap.has(shortName));
+
         this.#addEventRuleWithShortName(eventName, shortName, eventRule);
     }
 
@@ -111,46 +123,11 @@ export class MappingRules
     {
         if (eventRule.mappingRules != this)
             throw "The EventRule is not appended to this MappingRules";
-        if (eventRule.shortName == shortName)
-            return;
         if (eventRule.shortName)
             throw "Cannot set a short name because the EventRule already has a short name";
-        if (this.#shortNameMap.has(shortName))
+        if (this.#shortNameMap.has(shortName) && this.#shortNameMap.get(shortName) != eventRule)
             throw "Cannot use this short name because the short name is already used";
         eventRule.shortName = shortName;
         this.#shortNameMap.set(shortName, eventRule);
     }
-
-    /**
-     * 编码元对象信息
-     * 向客户端传递客户端当前不存在的事件的元对象信息
-     * @param {string} eventName
-     * @param {Object} eventMetaObj
-     * @returns {{
-     *  key: Array<string>,
-     *  short: string
-     * }} 编码后的对象
-     */
-    encodeEventMeta(eventName, eventMetaObj)
-    {
-        let eventRule = this.#eventNameMap.get(eventName);
-        if (!eventRule)
-            throw "Could not find event rule";
-        let ret = {
-            key: [],
-            short: eventRule.shortName
-        };
-
-        let keyList = eventRule.metaObjKeyList;
-        ret.key = keyList;
-        keyList.forEach((key, index) =>
-        {
-            let value = eventMetaObj[key];
-            if (value != undefined)
-                ret.value[index] = value;
-        });
-
-        return ret;
-    }
-
 }

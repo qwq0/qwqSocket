@@ -1,6 +1,6 @@
-import { EventRule } from "../data/EventRule.js";
-import { MappingRules } from "../data/MappingRules.js";
-import { RuleType } from "../data/RuleType.js";
+import { EventRule } from "../rule/EventRule.js";
+import { MappingRules } from "../rule/MappingRules.js";
+import { RuleType } from "../rule/RuleType.js";
 import { EventHandler } from "../util/EventHandler.js";
 
 /**

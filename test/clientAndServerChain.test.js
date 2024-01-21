@@ -1,7 +1,7 @@
 import { QwQSocketServer } from "../src/server/QwQSocketServer.js";
 import { QwQSocketClient } from "../src/client/QwQSocketClient.js";
-import { EventRule } from "../src/data/EventRule.js";
-import { RuleType } from "../src/data/RuleType.js";
+import { EventRule } from "../src/rule/EventRule.js";
+import { RuleType } from "../src/rule/RuleType.js";
 
 test("client and server complete chain", async () =>
 {
@@ -22,6 +22,11 @@ test("client and server complete chain", async () =>
         });
     }
 
+    /**
+     * @type {Array<{ receiver: "client" | "server", metaObj: Object }>}
+     */
+    let testArray = [];
+
     { // 创建测试事件监听器
         server.serverMappingRules.serverAddEventRule("serverTestEvent", EventRule.create([
             {
@@ -31,7 +36,11 @@ test("client and server complete chain", async () =>
         ]));
         serverClient.eventListener.serverTestEvent = (e) =>
         {
-            console.log("on serverTestEvent", e.timeSequence);
+            // console.log("on serverTestEvent", e.timeSequence);
+            testArray.push({
+                receiver: "server",
+                metaObj: e
+            });
         };
 
         server.clientMappingRules.serverAddEventRule("clientTestEvent", EventRule.createWithoutType([
@@ -48,7 +57,11 @@ test("client and server complete chain", async () =>
         ]));
         client.eventListener.clientTestEvent = (e) =>
         {
-            console.log("on clientTestEvent", e.timeSequence);
+            // console.log("on clientTestEvent", e.timeSequence);
+            testArray.push({
+                receiver: "client",
+                metaObj: e
+            });
         };
     }
 
@@ -60,4 +73,47 @@ test("client and server complete chain", async () =>
         client.sendTrigger("serverTestEvent", { timeSequence: 4 });
         serverClient.sendTrigger("clientTestEvent", { timeSequence: 5 });
     }
+
+    /**
+     * @type {(x: any) => void}
+     */
+    let done = null;
+
+    { // 进行测试
+        setTimeout(() =>
+        {
+
+            expect(testArray).toStrictEqual([
+                {
+                    receiver: "server",
+                    metaObj: { timeSequence: 0 }
+                },
+                {
+                    receiver: "client",
+                    metaObj: { timeSequence: 1 }
+                },
+                {
+                    receiver: "server",
+                    metaObj: { timeSequence: 2 }
+                },
+                {
+                    receiver: "client",
+                    metaObj: { timeSequence: 3 }
+                },
+                {
+                    receiver: "server",
+                    metaObj: { timeSequence: 4 }
+                },
+                {
+                    receiver: "client",
+                    metaObj: { timeSequence: 5 }
+                }
+            ]);
+
+            done();
+
+        }, 1000);
+    }
+
+    return new Promise(resolve => { done = resolve; });
 });

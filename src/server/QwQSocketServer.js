@@ -1,4 +1,4 @@
-import { MappingRules } from "../data/MappingRules.js";
+import { MappingRules } from "../rule/MappingRules.js";
 import { QwQSocketServerClient } from "./QwQSocketServerClient.js";
 
 /**
