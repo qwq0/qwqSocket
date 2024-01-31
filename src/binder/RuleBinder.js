@@ -1,11 +1,16 @@
 import { QwQSocketClient, QwQSocketServer, QwQSocketServerClient, RuleType } from "../index.js";
 import { EventRule } from "../rule/EventRule.js";
+import { BinderOperator } from "./BinderOperator.js";
+import { QueryError } from "./QueryError.js";
+
+let metaObjQueryIdKey = "-query-id";
+let metaObjCauseKey = "-cause";
 
 /**
  * 事件规则绑定器
  * 创建一个事件列表 然后附加到服务端或者客户端
  */
-export class EventRuleBinder
+export class RuleBinder
 {
     /**
      * 事件名列表
@@ -39,7 +44,7 @@ export class EventRuleBinder
 
     /**
      * 对端事件规则绑定器
-     * @type {EventRuleBinder}
+     * @type {RuleBinder}
      */
     #opposite = null;
 
@@ -73,7 +78,7 @@ export class EventRuleBinder
      */
     addEventRule(eventName, eventRule)
     {
-        if (!EventRuleBinder.#isValidEventName(eventName))
+        if (!RuleBinder.#isValidEventName(eventName))
             throw `"${eventName}" is not a valid event name`;
         this.#addEventName(eventName);
         if (this.#eventRuleMap.has(eventName))
@@ -95,13 +100,13 @@ export class EventRuleBinder
 
 
     /**
-     * 添加事件监听器
+     * 设置事件监听器
      * @param {string} eventName
      * @param {(eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void} listener
      */
-    addEventListener(eventName, listener)
+    setEventListener(eventName, listener)
     {
-        if (!EventRuleBinder.#isValidEventName(eventName))
+        if (!RuleBinder.#isValidEventName(eventName))
             throw `"${eventName}" is not a valid event name`;
         this.#addEventName(eventName);
         if (this.#eventListenerMap.has(eventName))
@@ -110,14 +115,14 @@ export class EventRuleBinder
     }
 
     /**
-     * 添加多个事件监听器
+     * 设置多个事件监听器
      * @param {Object<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void>} eventListeners
      */
-    addEventListeners(eventListeners)
+    setEventListeners(eventListeners)
     {
         Object.entries(eventListeners).forEach(([eventName, listener]) =>
         {
-            this.addEventListener(eventName, listener);
+            this.setEventListener(eventName, listener);
         });
     }
 
@@ -129,35 +134,117 @@ export class EventRuleBinder
      */
     addQueryRule(queryName, requestRule, responseRule)
     {
-        if (!EventRuleBinder.#isValidEventName(queryName))
+        if (!RuleBinder.#isValidEventName(queryName))
             throw `"${queryName}" is not a valid query name`;
 
         let requestEventName = queryName + "-req";
         let respondEventName = queryName + "-rsp";
+        let errorRespondEventName = queryName + "-ersp";
 
-        if(requestRule.hasKey("query-id") || responseRule.hasKey("query-id"))
-            throw `Cannot use internally occupied name "query-id"`;
-
-        // 绑定请求事件
-        this.#addEventName(requestEventName);
-        if (this.#eventRuleMap.has(requestEventName))
-            throw `The "${queryName}" query request rule is defined repeatedly`;
-        this.#eventRuleMap.set(
-            requestEventName,
-            requestRule.getCopy().addParamToFront("query-id", RuleType.string())
-        );
+        if (requestRule.hasKey(metaObjQueryIdKey) || responseRule.hasKey(metaObjQueryIdKey))
+            throw `Cannot use internally occupied name "${metaObjQueryIdKey}"`;
 
         let opposite = this.#opposite;
         if (opposite == null)
             throw "Cannot bind event response because the opposite does not exist";
 
-        // 绑定响应事件
-        opposite.#addEventName(respondEventName);
-        if (opposite.#eventRuleMap.has(respondEventName))
-            throw `The "${queryName}" query response rule is defined repeatedly`;
+        // 绑定请求事件
+        opposite.#addEventName(requestEventName);
+        if (opposite.#eventRuleMap.has(requestEventName))
+            throw `The "${queryName}" query request rule is defined repeatedly`;
         opposite.#eventRuleMap.set(
+            requestEventName,
+            requestRule.getCopy().addParamToFront(metaObjQueryIdKey, RuleType.string())
+        );
+
+        // 绑定响应事件
+        this.#addEventName(respondEventName);
+        if (this.#eventRuleMap.has(respondEventName))
+            throw `The "${queryName}" query response rule is defined repeatedly`;
+        this.#eventRuleMap.set(
             respondEventName,
-            responseRule.getCopy().addParamToFront("query-id", RuleType.string())
+            responseRule.getCopy().addParamToFront(metaObjQueryIdKey, RuleType.string())
+        );
+
+        // 绑定错误响应事件
+        this.#addEventName(errorRespondEventName);
+        if (this.#eventRuleMap.has(errorRespondEventName))
+            throw `The "${queryName}" query error-response rule is defined repeatedly`;
+        this.#eventRuleMap.set(
+            errorRespondEventName,
+            EventRule.create([
+                {
+                    key: metaObjQueryIdKey,
+                    rule: RuleType.string()
+                },
+                {
+                    key: metaObjCauseKey,
+                    rule: RuleType.string().merge(RuleType.undefined())
+                }
+            ])
+        );
+    }
+
+    /**
+     * 设置查询处理函数
+     * @param {string} queryName
+     * @param {(eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)} processor
+     */
+    setQueryProcessor(queryName, processor)
+    {
+        if (!RuleBinder.#isValidEventName(queryName))
+            throw `"${queryName}" is not a valid query name`;
+
+        let requestEventName = queryName + "-req";
+        let respondEventName = queryName + "-rsp";
+        let errorRespondEventName = queryName + "-ersp";
+
+        this.#addEventName(requestEventName);
+        if (this.#eventListenerMap.has(requestEventName))
+            throw `The "${queryName}" query processor is defined repeatedly`;
+        this.#eventListenerMap.set(
+            requestEventName,
+            async (eventMetaObj, target) => // 请求事件的监听器
+            {
+                let queryId = eventMetaObj[metaObjQueryIdKey];
+                try
+                {
+                    let result = await processor(eventMetaObj, target);
+
+                    if (result == null)
+                    {
+                        result = {};
+                    }
+                    else
+                    {
+                        if (typeof (result) != "object")
+                            throw "query processor muse return a object";
+                        result = Object.assign({}, result);
+                    }
+
+                    result[metaObjQueryIdKey] = queryId;
+
+                    // 完成请求 触发响应事件
+                    target.sendTrigger(respondEventName, result);
+                }
+                catch (err)
+                { // 请求失败 触发错误响应事件
+                    if (err instanceof QueryError)
+                    {
+                        target.sendTrigger(errorRespondEventName, {
+                            [metaObjQueryIdKey]: queryId,
+                            [metaObjCauseKey]: err.cause
+                        });
+                    }
+                    else
+                    {
+                        console.error(err);
+                        target.sendTrigger(errorRespondEventName, {
+                            [metaObjQueryIdKey]: queryId
+                        });
+                    }
+                }
+            }
         );
     }
 
@@ -217,9 +304,24 @@ export class EventRuleBinder
     }
 
     /**
+     * 创建操作器
+     * @param {QwQSocketServerClient | QwQSocketClient} target 
+     * @returns {BinderOperator}
+     */
+    createOperator(target)
+    {
+        let ret = new BinderOperator(target);
+        this.#eventNameList.forEach(eventName =>
+        {
+            ret.addTrigger(eventName);
+        });
+        return ret;
+    }
+
+    /**
      * 绑定对端
      * 服务端规则和客户端规则之间的绑定
-     * @param {EventRuleBinder} target
+     * @param {RuleBinder} target
      */
     bindOpposite(target)
     {
@@ -234,22 +336,22 @@ export class EventRuleBinder
 
     /**
      * 创建服务端事件规则集
-     * @returns {EventRuleBinder}
+     * @returns {RuleBinder}
      */
     static createServerBound()
     {
-        let ret = new EventRuleBinder();
+        let ret = new RuleBinder();
         ret.#bound = "server";
         return ret;
     }
 
     /**
      * 创建客户端事件规则集
-     * @returns {EventRuleBinder}
+     * @returns {RuleBinder}
      */
     static createClientBound()
     {
-        let ret = new EventRuleBinder();
+        let ret = new RuleBinder();
         ret.#bound = "client";
         return ret;
     }

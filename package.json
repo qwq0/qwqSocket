@@ -5,6 +5,7 @@
     "main": "./src/server/QwQSocketServer.js",
     "author": "qwq0",
     "license": "MIT",
+    "repository": "https://github.com/qwq0/qwqSocket",
     "scripts": {
         "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js ./test"
     },
