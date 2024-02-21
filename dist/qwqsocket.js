@@ -1946,6 +1946,8 @@ class RuleBinder
         if (!RuleBinder.#isValidEventName(queryName))
             throw `"${queryName}" is not a valid query name`;
 
+        this.#queryNameSet.add(queryName);
+
         let requestEventName = queryName + "-req";
         let respondEventName = queryName + "-rsp";
         let errorRespondEventName = queryName + "-ersp";
@@ -1958,28 +1960,28 @@ class RuleBinder
             throw "Cannot bind event response because the opposite does not exist";
 
         // 绑定请求事件
-        opposite.#addEventName(requestEventName);
-        if (opposite.#eventRuleMap.has(requestEventName))
+        this.#addEventName(requestEventName);
+        if (this.#eventRuleMap.has(requestEventName))
             throw `The "${queryName}" query request rule is defined repeatedly`;
-        opposite.#eventRuleMap.set(
+        this.#eventRuleMap.set(
             requestEventName,
             requestRule.getCopy().addParamToFront(metaObjQueryIdKey, RuleType.string())
         );
 
         // 绑定响应事件
-        this.#addEventName(respondEventName);
-        if (this.#eventRuleMap.has(respondEventName))
+        opposite.#addEventName(respondEventName);
+        if (opposite.#eventRuleMap.has(respondEventName))
             throw `The "${queryName}" query response rule is defined repeatedly`;
-        this.#eventRuleMap.set(
+        opposite.#eventRuleMap.set(
             respondEventName,
             responseRule.getCopy().addParamToFront(metaObjQueryIdKey, RuleType.string())
         );
 
         // 绑定错误响应事件
-        this.#addEventName(errorRespondEventName);
-        if (this.#eventRuleMap.has(errorRespondEventName))
+        opposite.#addEventName(errorRespondEventName);
+        if (opposite.#eventRuleMap.has(errorRespondEventName))
             throw `The "${queryName}" query error-response rule is defined repeatedly`;
-        this.#eventRuleMap.set(
+        opposite.#eventRuleMap.set(
             errorRespondEventName,
             EventRule.create([
                 {
@@ -2003,6 +2005,8 @@ class RuleBinder
     {
         if (!RuleBinder.#isValidEventName(queryName))
             throw `"${queryName}" is not a valid query name`;
+
+        this.#queryNameSet.add(queryName);
 
         let requestEventName = queryName + "-req";
         let respondEventName = queryName + "-rsp";
@@ -2095,12 +2099,13 @@ class RuleBinder
                 this.#eventNameList.forEach(eventName =>
                 {
                     let eventListener = this.#eventListenerMap.get(eventName);
-                    if (!eventListener)
-                        throw `Cannot attach to target because listener "${eventName}" is missing`;
-                    if (target.eventListener[eventName])
-                        throw `Cannot attach to target because a listener "${eventName}" is already bound on the target`;
-                    // @ts-ignore
-                    target.eventListener[eventName] = eventListener;
+                    if (eventListener)
+                    {
+                        if (target.eventListener[eventName])
+                            throw `Cannot attach to target because a listener "${eventName}" is already bound on the target`;
+                        // @ts-ignore
+                        target.eventListener[eventName] = eventListener;
+                    }
                 });
             }
             else
@@ -2119,12 +2124,13 @@ class RuleBinder
                 target.addEventRule(eventName, eventRule.getCopy());
 
                 let eventListener = this.#eventListenerMap.get(eventName);
-                if (!eventListener)
-                    throw `Cannot attach to target because listener "${eventName}" is missing`;
-                if (target.eventListener[eventName])
-                    throw `Cannot attach to target because a listener "${eventName}" is already bound on the target`;
-                // @ts-ignore
-                target.eventListener[eventName] = eventListener;
+                if (eventListener)
+                {
+                    if (target.eventListener[eventName])
+                        throw `Cannot attach to target because a listener "${eventName}" is already bound on the target`;
+                    // @ts-ignore
+                    target.eventListener[eventName] = eventListener;
+                }
             });
         }
         else
