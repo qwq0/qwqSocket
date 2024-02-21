@@ -3,8 +3,8 @@ import { EventRule } from "../rule/EventRule.js";
 import { BinderOperator } from "./BinderOperator.js";
 import { QueryError } from "./QueryError.js";
 
-let metaObjQueryIdKey = "-query-id";
-let metaObjCauseKey = "-cause";
+const metaObjQueryIdKey = "-query-id";
+const metaObjCauseKey = "-cause";
 
 /**
  * 事件规则绑定器
@@ -37,6 +37,12 @@ export class RuleBinder
     #eventListenerMap = new Map();
 
     /**
+     * 查询名集合
+     * @type {Set<string>}
+     */
+    #queryNameSet = new Set();
+
+    /**
      * 绑定到指定端的事件
      * @type {"server" | "client" | "peer" | ""}
      */
@@ -47,6 +53,12 @@ export class RuleBinder
      * @type {RuleBinder}
      */
     #opposite = null;
+
+    /**
+     * @private
+     */
+    constructor()
+    { }
 
     /**
      * 检测合法的用户事件名
@@ -254,10 +266,11 @@ export class RuleBinder
      */
     applyToInstance(target)
     {
-        if (this.#bound == "server")
-        { // 应用到服务端
-            if (target instanceof QwQSocketServer)
-            { // 应用到服务端实例
+        if (this.#bound == "server") // 应用到服务端
+        {
+            if (target instanceof QwQSocketServer) // 应用到 服务端 实例
+            {
+                // 向 服务端 实例 添加服务端事件的规则
                 this.#eventNameList.forEach(eventName =>
                 {
                     let eventRule = this.#eventRuleMap.get(eventName);
@@ -265,24 +278,40 @@ export class RuleBinder
                         throw `Cannot attach to target because rule "${eventName}" is missing`;
                     target.serverMappingRules.serverAddEventRule(eventName, eventRule.getCopy());
                 });
+
+                // 向 服务端 实例 添加客户端事件的规则
+                if (this.#opposite)
+                {
+                    let opposite = this.#opposite;
+                    opposite.#eventNameList.forEach(eventName =>
+                    {
+                        let eventRule = opposite.#eventRuleMap.get(eventName);
+                        if (!eventRule)
+                            throw `Cannot attach to target because rule "${eventName}" is missing`;
+                        target.clientMappingRules.serverAddEventRule(eventName, eventRule.getCopyWithoutType());
+                    });
+                }
             }
-            else if (target instanceof QwQSocketServerClient)
-            { // 应用到服务端的单个客户端实例
+            else if (target instanceof QwQSocketServerClient) // 应用到 服务端的单个客户端 实例
+            {
+                // 向 服务端的单个客户端 实例 添加事件监听器
                 this.#eventNameList.forEach(eventName =>
                 {
                     let eventListener = this.#eventListenerMap.get(eventName);
                     if (!eventListener)
                         throw `Cannot attach to target because listener "${eventName}" is missing`;
+                    if (target.eventListener[eventName])
+                        throw `Cannot attach to target because a listener "${eventName}" is already bound on the target`;
                     // @ts-ignore
                     target.eventListener[eventName] = eventListener;
                 });
             }
             else
-                throw "The binding type does not match the target";
+                throw "The binding type does not match the target (should bind to server)";
 
         }
-        else if (this.#bound == "client")
-        { // 应用到客户端
+        else if (this.#bound == "client") // 应用到客户端
+        {
             if (!(target instanceof QwQSocketClient))
                 throw "The binding type does not match the target";
             this.#eventNameList.forEach(eventName =>
@@ -295,12 +324,14 @@ export class RuleBinder
                 let eventListener = this.#eventListenerMap.get(eventName);
                 if (!eventListener)
                     throw `Cannot attach to target because listener "${eventName}" is missing`;
+                if (target.eventListener[eventName])
+                    throw `Cannot attach to target because a listener "${eventName}" is already bound on the target`;
                 // @ts-ignore
                 target.eventListener[eventName] = eventListener;
             });
         }
         else
-            throw "Unsupported binding type";
+            throw "Unsupported binding type (should bind to client)";
     }
 
     /**
@@ -310,10 +341,17 @@ export class RuleBinder
      */
     createOperator(target)
     {
+        let opposite = this.#opposite;
+        if (opposite == null)
+            throw "Cannot create operator because the opposite RuleBinder does not exist";
         let ret = new BinderOperator(target);
-        this.#eventNameList.forEach(eventName =>
+        opposite.#eventNameList.forEach(eventName =>
         {
             ret.addTrigger(eventName);
+        });
+        opposite.#queryNameSet.forEach(queryName =>
+        {
+            ret.addQuery(queryName);
         });
         return ret;
     }

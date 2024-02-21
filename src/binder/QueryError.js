@@ -1,5 +1,5 @@
 /**
- * 请求错误
+ * 查询时错误
  */
 export class QueryError
 {
@@ -17,5 +17,10 @@ export class QueryError
     constructor(cause)
     {
         this.cause = cause;
+    }
+
+    toString()
+    {
+        return `QueryError: ${this.cause}`;
     }
 }

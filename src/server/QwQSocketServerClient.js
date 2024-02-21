@@ -57,6 +57,9 @@ export class QwQSocketServerClient
      */
     #submitClientShortNameSet = new Set();
 
+    /**
+     * @private
+     */
     constructor()
     { }
 
