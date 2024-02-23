@@ -520,11 +520,28 @@ declare class RuleBinder {
      */
     addQueryRule(queryName: string, requestRule: EventRule, responseRule: EventRule): void;
     /**
+     * 添加多个查询规则
+     * @param {Object<string, { request: EventRule, response: EventRule }>} queryRules
+     */
+    addQueryRules(queryRules: {
+        [x: string]: {
+            request: EventRule;
+            response: EventRule;
+        };
+    }): void;
+    /**
      * 设置查询处理函数
      * @param {string} queryName
      * @param {(eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)} processor
      */
     setQueryProcessor(queryName: string, processor: (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)): void;
+    /**
+     * 设置多个查询处理函数
+     * @param {Object<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => any>} queryProcessors
+     */
+    setQueryProcessors(queryProcessors: {
+        [x: string]: (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => any;
+    }): void;
     /**
      * 应用到实例
      * @param {QwQSocketServer | QwQSocketServerClient | QwQSocketClient} target

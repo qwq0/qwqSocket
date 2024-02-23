@@ -1997,6 +1997,18 @@ class RuleBinder
     }
 
     /**
+     * 添加多个查询规则
+     * @param {Object<string, { request: EventRule, response: EventRule }>} queryRules
+     */
+    addQueryRules(queryRules)
+    {
+        Object.entries(queryRules).forEach(([queryName, queryRulePair]) =>
+        {
+            this.addQueryRule(queryName, queryRulePair.request, queryRulePair.response);
+        });
+    }
+
+    /**
      * 设置查询处理函数
      * @param {string} queryName
      * @param {(eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)} processor
@@ -2059,6 +2071,18 @@ class RuleBinder
                 }
             }
         );
+    }
+
+    /**
+     * 设置多个查询处理函数
+     * @param {Object<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => any>} queryProcessors
+     */
+    setQueryProcessors(queryProcessors)
+    {
+        Object.entries(queryProcessors).forEach(([queryName, processor]) =>
+        {
+            this.setQueryProcessor(queryName, processor);
+        });
     }
 
     /**
