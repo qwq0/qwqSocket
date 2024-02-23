@@ -1,8 +1,9 @@
 {
     "name": "qwq-socket",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "type": "module",
-    "main": "./src/server/QwQSocketServer.js",
+    "main": "./dist/qwqsocket.js",
+    "types": "./dist/qwqsocket.d.ts",
     "author": "qwq0",
     "license": "MIT",
     "repository": "https://github.com/qwq0/qwqSocket",
