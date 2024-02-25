@@ -549,10 +549,11 @@ declare class RuleBinder {
     applyToInstance(target: QwQSocketServer | QwQSocketServerClient | QwQSocketClient): void;
     /**
      * 创建操作器
-     * @param {QwQSocketServerClient | QwQSocketClient} target
-     * @returns {BinderOperator}
+     * @template {QwQSocketServerClient | QwQSocketClient} K
+     * @param {K} target
+     * @returns {BinderOperator<K>}
      */
-    createOperator(target: QwQSocketServerClient | QwQSocketClient): BinderOperator<any>;
+    createOperator<K extends QwQSocketServerClient | QwQSocketClient>(target: K): BinderOperator<K>;
     /**
      * 绑定对端
      * 服务端规则和客户端规则之间的绑定

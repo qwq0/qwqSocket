@@ -366,8 +366,9 @@ export class RuleBinder
 
     /**
      * 创建操作器
-     * @param {QwQSocketServerClient | QwQSocketClient} target 
-     * @returns {BinderOperator}
+     * @template {QwQSocketServerClient | QwQSocketClient} K
+     * @param {K} target 
+     * @returns {BinderOperator<K>}
      */
     createOperator(target)
     {
