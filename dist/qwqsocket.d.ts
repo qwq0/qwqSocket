@@ -24,6 +24,21 @@ declare class RuleType {
      */
     static number(): RuleType;
     /**
+     * 创建 number 中的 整数 类型规则
+     * @returns {RuleType}
+     */
+    static integer(): RuleType;
+    /**
+     * 创建 number 中的 非负整数 类型规则
+     * @returns {RuleType}
+     */
+    static nonnegativeInteger(): RuleType;
+    /**
+     * 创建 number 中的 有限数 类型规则
+     * @returns {RuleType}
+     */
+    static finite(): RuleType;
+    /**
      * 创建 string 类型规则
      * @returns {RuleType}
      */

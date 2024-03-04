@@ -451,6 +451,44 @@ class RuleType
     }
 
     /**
+     * 创建 number 中的 整数 类型规则
+     * @returns {RuleType}
+     */
+    static integer()
+    {
+        let ret = new RuleType();
+        ret.#number = true;
+        ret.#allowInteger = true;
+        return ret;
+    }
+
+    /**
+     * 创建 number 中的 非负整数 类型规则
+     * @returns {RuleType}
+     */
+    static nonnegativeInteger()
+    {
+        let ret = new RuleType();
+        ret.#number = true;
+        ret.#allowInteger = true;
+        ret.#numberMin = 0;
+        return ret;
+    }
+
+    /**
+     * 创建 number 中的 有限数 类型规则
+     * @returns {RuleType}
+     */
+    static finite()
+    {
+        let ret = new RuleType();
+        ret.#number = true;
+        ret.#allowInteger = true;
+        ret.#allowFinite = true;
+        return ret;
+    }
+
+    /**
      * 创建 string 类型规则
      * @returns {RuleType}
      */
