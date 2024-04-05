@@ -1,6 +1,6 @@
 {
     "name": "qwq-socket",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "type": "module",
     "main": "./dist/qwqsocket.js",
     "types": "./dist/qwqsocket.d.ts",
@@ -11,8 +11,11 @@
         "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js ./test"
     },
     "devDependencies": {
-        "ws": "^8.14.2",
         "@types/jest": "^29.5.11",
-        "jest": "^29.7.0"
+        "jest": "^29.7.0",
+        "rollup": "^4.14.0",
+        "rollup-plugin-dts": "^6.1.0",
+        "typescript": "^5.4.4",
+        "ws": "^8.14.2"
     }
 }
