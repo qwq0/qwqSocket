@@ -55,6 +55,13 @@ export class RuleBinder
     #opposite = null;
 
     /**
+     * 事件监听器对象缓存
+     * 将绑定器附加到服务器的客户端实例时使用
+     * @type {Object}
+     */
+    #eventListenerObjectCache = null;
+
+    /**
      * @private
      */
     constructor()
@@ -124,6 +131,7 @@ export class RuleBinder
         if (this.#eventListenerMap.has(eventName))
             throw `The "${eventName}" event listener is defined repeatedly`;
         this.#eventListenerMap.set(eventName, listener);
+        this.#eventListenerObjectCache = null;
     }
 
     /**
@@ -323,17 +331,34 @@ export class RuleBinder
             else if (target instanceof QwQSocketServerClient) // 应用到 服务端的单个客户端 实例
             {
                 // 向 服务端的单个客户端 实例 添加事件监听器
-                this.#eventNameList.forEach(eventName =>
-                {
-                    let eventListener = this.#eventListenerMap.get(eventName);
-                    if (eventListener)
+                if (Object.keys(target.eventListener).length == 0 && target.eventListener.constructor == Object)
+                { // 使用缓存
+                    if (!this.#eventListenerObjectCache)
                     {
-                        if (target.eventListener[eventName])
-                            throw `Cannot attach to target because a listener "${eventName}" is already bound on the target`;
-                        // @ts-ignore
-                        target.eventListener[eventName] = eventListener;
+                        this.#eventListenerObjectCache = {};
+                        this.#eventNameList.forEach(eventName =>
+                        {
+                            let eventListener = this.#eventListenerMap.get(eventName);
+                            if (eventListener)
+                                this.#eventListenerObjectCache[eventName] = eventListener;
+                        });
                     }
-                });
+                    target.eventListener = Object.create(this.#eventListenerObjectCache);
+                }
+                else
+                { // 不使用缓存
+                    this.#eventNameList.forEach(eventName =>
+                    {
+                        let eventListener = this.#eventListenerMap.get(eventName);
+                        if (eventListener)
+                        {
+                            if (target.eventListener[eventName])
+                                throw `Cannot attach to target because a listener "${eventName}" is already bound on the target`;
+                            // @ts-ignore
+                            target.eventListener[eventName] = eventListener;
+                        }
+                    });
+                }
             }
             else
                 throw "The binding type does not match the target (should bind to server)";

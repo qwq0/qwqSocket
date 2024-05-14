@@ -1,6 +1,6 @@
 {
     "name": "qwq-socket",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "type": "module",
     "main": "./dist/qwqsocket.js",
     "types": "./dist/qwqsocket.d.ts",
