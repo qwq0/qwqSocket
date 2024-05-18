@@ -1,4 +1,16 @@
 /**
+ * js内置类构造器 到 类型名称 映射
+ * @type {Map<Object, string>}
+ */
+// @ts-ignore
+let buildInClassMap = new Map([
+    [Uint8Array, "Uint8Array"],
+    [Map, "Map"],
+    [Set, "Set"]
+]);
+
+
+/**
  * 规则类型
  * 用于对值的类型进行检查
  * 
@@ -7,6 +19,13 @@
  */
 class RuleType
 {
+    /**
+     * 任意类型
+     * 跳过一切类型判定通过所有类型
+     * @type {boolean}
+     */
+    #any = false;
+
     /**
      * 允许 number 类型
      * @type {boolean}
@@ -40,15 +59,15 @@ class RuleType
      */
     #allowNaN = false;
     /**
-     * 对于number 允许的最大的值
-     * @type {number | null}
-     */
-    #numberMax = null;
-    /**
      * 对于number 允许的最小的值
      * @type {number | null}
      */
     #numberMin = null;
+    /**
+     * 对于number 允许的最大的值
+     * @type {number | null}
+     */
+    #numberMax = null;
 
 
     /**
@@ -63,6 +82,11 @@ class RuleType
      * @type {boolean}
      */
     #string = false;
+    /**
+     * 对于string 允许的最小长度
+     * @type {number | null}
+     */
+    #stringMinLength = null;
     /**
      * 对于string 允许的最大长度
      * @type {number | null}
@@ -92,6 +116,16 @@ class RuleType
      * @type {RuleType}
      */
     #arrayDefaultRule = null;
+    /**
+     * 对于数组 允许的最小长度
+     * @type {number | null}
+     */
+    #arrayMinLength = null;
+    /**
+     * 对于数组 允许的最大长度
+     * @type {number | null}
+     */
+    #arrayMaxLength = null;
 
 
     /**
@@ -116,6 +150,27 @@ class RuleType
      */
     #defaultValueRule = null;
 
+    /**
+     * 允许 js内置类
+     * @type {boolean}
+     */
+    #buildInClass = false;
+    /**
+     * 对于js内置类 允许哪一种内置类
+     * @type {"Map" | "Set" | "Uint8Array" | null}
+     */
+    #classTypeName = null;
+    /**
+     * 对于内置类(Map) 允许的key类型
+     * @type {RuleType}
+     */
+    #classKeyType = null;
+    /**
+     * 对于内置类(Map和Set) 允许的value类型
+     * @type {RuleType}
+     */
+    #classValueType = null;
+
 
     /**
      * 允许 null
@@ -136,13 +191,6 @@ class RuleType
      * @type {Set<any>}
      */
     #enumSet = null;
-
-    /**
-     * 任意类型
-     * 跳过一切类型判定通过所有类型
-     * @type {boolean}
-     */
-    #any = false;
 
     /**
      * 验证值是否符合此规则
@@ -196,12 +244,16 @@ class RuleType
             case "string": {
                 if (!this.#string)
                     return false;
+
+                if (this.#stringMinLength != null && value.length < this.#stringMinLength)
+                    return false;
                 if (this.#stringMaxLength != null && value.length > this.#stringMaxLength)
                     return false;
+
                 return true;
             }
             case "object": {
-                if (value == null)
+                if (value === null)
                 {
                     return this.#enableNull;
                 }
@@ -210,10 +262,16 @@ class RuleType
                     if (!this.#array)
                         return false;
 
-                    for (let index = 0, length = Math.max(value.length, this.#arrayRule.length); index < length; index++)
+                    if (this.#arrayMinLength != null && this.#arrayMinLength > value.length)
+                        return false;
+                    if (this.#arrayMaxLength != null && this.#arrayMaxLength < value.length)
+                        return false;
+
+                    let fixRuleLength = (this.#arrayRule ? this.#arrayRule.length : 0);
+                    for (let index = 0; index < fixRuleLength; index++)
                     {
                         let subValue = value[index];
-                        let rule = this.#arrayRule?.[index];
+                        let rule = this.#arrayRule[index];
                         if (rule)
                         {
                             if (!rule.verify(subValue))
@@ -228,22 +286,80 @@ class RuleType
                             return false;
                     }
 
+                    let valueLength = value.length;
+                    if (fixRuleLength < valueLength)
+                    {
+                        if (this.#arrayDefaultRule == null)
+                            return false;
+                        if (!this.#arrayDefaultRule.#any)
+                        {
+                            for (let index = fixRuleLength; index < valueLength; index++)
+                            {
+                                if (!this.#arrayDefaultRule.verify(value[index]))
+                                    return false;
+                            }
+                        }
+                    }
+
                     return true;
+                }
+                else if (this.#buildInClass && buildInClassMap.has(value?.constructor))
+                {
+                    let classTypeName = buildInClassMap.get(value.constructor);
+                    if (classTypeName != this.#classTypeName)
+                        return false;
+
+                    switch (classTypeName)
+                    {
+                        case "Map": {
+                            if (this.#classKeyType.#any && this.#classValueType.#any)
+                                return true;
+                            for (let [subKey, subValue] of value)
+                            {
+                                if (!(this.#classKeyType.verify(subKey) && this.#classValueType.verify(subValue)))
+                                    return false;
+                            }
+                            return true;
+                        }
+                        case "Set": {
+                            if (this.#classValueType.#any)
+                                return true;
+                            for (let subValue of value)
+                            {
+                                if (!this.#classValueType.verify(subValue))
+                                    return false;
+                            }
+                            return true;
+                        }
+                        case "Uint8Array": {
+                            return true;
+                        }
+                        default: {
+                            return false;
+                        }
+                    }
                 }
                 else
                 {
                     if (!this.#object)
                         return false;
 
+                    if (
+                        this.#necessaryKey.size == 0 &&
+                        this.#keyRuleMap.size == 0 &&
+                        this.#defaultValueRule &&
+                        this.#defaultValueRule.#any
+                    )
+                        return true;
+
                     let entriesList = Object.entries(value);
                     let keySet = new Set(entriesList.map(o => o[0]));
 
-                    if (this.#necessaryKey)
-                        for (let key of this.#necessaryKey)
-                        {
-                            if (!keySet.has(key))
-                                return false;
-                        }
+                    for (let key of this.#necessaryKey)
+                    {
+                        if (!keySet.has(key))
+                            return false;
+                    }
 
                     for (let [key, subValue] of entriesList)
                     {
@@ -289,32 +405,56 @@ class RuleType
         if (this.#any || target.#any)
             return RuleType.any();
 
-        ret.#number = this.#number || target.#number;
-        ret.#allowInteger = this.#allowInteger || target.#allowInteger;
-        ret.#allowFinite = this.#allowFinite || target.#allowFinite;
-        ret.#allowPositiveInfinity = this.#allowPositiveInfinity || target.#allowPositiveInfinity;
-        ret.#allowNegativeInfinity = this.#allowNegativeInfinity || target.#allowNegativeInfinity;
-        ret.#allowNaN = this.#allowNaN || target.#allowNaN;
-        ret.#numberMax = mergeSame(this.#numberMax, target.#numberMax);
-        ret.#numberMin = mergeSame(this.#numberMin, target.#numberMin);
+        if (ret.#number = mergeParent(this.#number, target.#number))
+        {
+            ret.#allowInteger = this.#allowInteger || target.#allowInteger;
+            ret.#allowFinite = this.#allowFinite || target.#allowFinite;
+            ret.#allowPositiveInfinity = this.#allowPositiveInfinity || target.#allowPositiveInfinity;
+            ret.#allowNegativeInfinity = this.#allowNegativeInfinity || target.#allowNegativeInfinity;
+            ret.#allowNaN = this.#allowNaN || target.#allowNaN;
+            ret.#numberMin = mergeSame(this.#numberMin, target.#numberMin);
+            ret.#numberMax = mergeSame(this.#numberMax, target.#numberMax);
+        }
 
         ret.#boolean = this.#boolean || target.#boolean;
 
-        ret.#string = this.#string || target.#string;
+        if (ret.#string = mergeParent(this.#string, target.#string))
+        {
+            ret.#stringMinLength = mergeSame(this.#stringMinLength, target.#stringMinLength);
+            ret.#stringMaxLength = mergeSame(this.#stringMaxLength, target.#stringMaxLength);
+        }
 
         ret.#biging = this.#biging || target.#biging;
 
-        ret.#array = this.#array || target.#array;
-        ret.#arrayRule = mergeSame(this.#arrayRule, target.#arrayRule);
-        ret.#arrayDefaultRule = mergeSame(this.#arrayDefaultRule, target.#arrayDefaultRule);
+        if (ret.#array = mergeParent(this.#array, target.#array))
+        {
+            if (this.#array && target.#array)
+                throw "Unable to merge Ruletypes both contain Array type restrictions";
+            ret.#arrayRule = mergeSame(this.#arrayRule, target.#arrayRule);
+            ret.#arrayDefaultRule = mergeSame(this.#arrayDefaultRule, target.#arrayDefaultRule);
+            ret.#arrayMinLength = mergeSame(this.#arrayMinLength, target.#arrayMinLength);
+            ret.#arrayMaxLength = mergeSame(this.#arrayMaxLength, target.#arrayMaxLength);
+        }
 
-        ret.#object = this.#object || target.#object;
-        ret.#necessaryKey = mergeSame(this.#necessaryKey, target.#necessaryKey);
-        ret.#keyRuleMap = mergeSame(this.#keyRuleMap, target.#keyRuleMap);
-        ret.#defaultValueRule = mergeSame(this.#defaultValueRule, target.#defaultValueRule);
+        if (ret.#object = mergeParent(this.#object, target.#object))
+        {
+            if (this.#object && target.#object)
+                throw "Unable to merge Ruletypes both contain Object type restrictions";
+            ret.#necessaryKey = mergeSame(this.#necessaryKey, target.#necessaryKey);
+            ret.#keyRuleMap = mergeSame(this.#keyRuleMap, target.#keyRuleMap);
+            ret.#defaultValueRule = mergeSame(this.#defaultValueRule, target.#defaultValueRule);
+        }
+
+        if (ret.#buildInClass = mergeParent(this.#buildInClass, target.#buildInClass))
+        {
+            if (this.#buildInClass && target.#buildInClass)
+                throw "Unable to merge Ruletypes both contain buildInClass type restrictions";
+            ret.#classTypeName = mergeSame(this.#classTypeName, target.#classTypeName);
+            ret.#classKeyType = mergeSame(this.#classKeyType, target.#classKeyType);
+            ret.#classValueType = mergeSame(this.#classValueType, target.#classValueType);
+        }
 
         ret.#enableNull = this.#enableNull || target.#enableNull;
-
         ret.#enableUndefined = this.#enableUndefined || target.#enableUndefined;
 
         if (this.#enumSet || target.#enumSet)
@@ -356,32 +496,43 @@ class RuleType
         else if (target.#any)
             return this;
 
-        ret.#number = this.#number && target.#number;
-        ret.#allowInteger = this.#allowInteger && target.#allowInteger;
-        ret.#allowFinite = this.#allowFinite && target.#allowFinite;
-        ret.#allowPositiveInfinity = this.#allowPositiveInfinity && target.#allowPositiveInfinity;
-        ret.#allowNegativeInfinity = this.#allowNegativeInfinity && target.#allowNegativeInfinity;
-        ret.#allowNaN = this.#allowNaN && target.#allowNaN;
-        ret.#numberMax = intersectNonNull(this.#numberMax, target.#numberMax);
-        ret.#numberMin = intersectNonNull(this.#numberMin, target.#numberMin);
+        if (ret.#number = intersectParent(this.#number, target.#number))
+        {
+            ret.#allowInteger = this.#allowInteger && target.#allowInteger;
+            ret.#allowFinite = this.#allowFinite && target.#allowFinite;
+            ret.#allowPositiveInfinity = this.#allowPositiveInfinity && target.#allowPositiveInfinity;
+            ret.#allowNegativeInfinity = this.#allowNegativeInfinity && target.#allowNegativeInfinity;
+            ret.#allowNaN = this.#allowNaN && target.#allowNaN;
+            ret.#numberMin = intersectNonNull(this.#numberMin, target.#numberMin);
+            ret.#numberMax = intersectNonNull(this.#numberMax, target.#numberMax);
+        }
 
         ret.#boolean = this.#boolean && target.#boolean;
 
-        ret.#string = this.#string && target.#string;
+        if (ret.#string = intersectParent(this.#string, target.#string))
+        {
+            ret.#stringMinLength = intersectNonNull(this.#stringMinLength, target.#stringMinLength);
+            ret.#stringMaxLength = intersectNonNull(this.#stringMaxLength, target.#stringMaxLength);
+        }
 
         ret.#biging = this.#biging && target.#biging;
 
-        ret.#array = this.#array && target.#array;
-        ret.#arrayRule = intersectNonNull(this.#arrayRule, target.#arrayRule);
-        ret.#arrayDefaultRule = intersectNonNull(this.#arrayDefaultRule, target.#arrayDefaultRule);
+        if (ret.#array = intersectParent(this.#array, target.#array))
+        {
+            throw "Unable to intersect Ruletypes both contain Array type restrictions";
+        }
 
-        ret.#object = this.#object && target.#object;
-        ret.#necessaryKey = intersectNonNull(this.#necessaryKey, target.#necessaryKey);
-        ret.#keyRuleMap = intersectNonNull(this.#keyRuleMap, target.#keyRuleMap);
-        ret.#defaultValueRule = intersectNonNull(this.#defaultValueRule, target.#defaultValueRule);
+        if (ret.#object = intersectParent(this.#object, target.#object))
+        {
+            throw "Unable to intersect Ruletypes both contain Object type restrictions";
+        }
+
+        if (ret.#buildInClass = intersectParent(this.#buildInClass, target.#buildInClass))
+        {
+            throw "Unable to intersect Ruletypes both contain BuildInClass type restrictions";
+        }
 
         ret.#enableNull = this.#enableNull && target.#enableNull;
-
         ret.#enableUndefined = this.#enableUndefined && target.#enableUndefined;
 
         if (this.#enumSet || target.#enumSet)
@@ -411,7 +562,16 @@ class RuleType
     }
 
     /**
-     * 创建任意类型的规则
+     * 创建 不通过 任何值的规则
+     * @returns {RuleType}
+     */
+    static never()
+    {
+        return new RuleType();
+    }
+
+    /**
+     * 创建 通过 任意类型的规则
      * @returns {RuleType}
      */
     static any()
@@ -463,6 +623,24 @@ class RuleType
     }
 
     /**
+     * 创建 限制范围的 整数 类型规则
+     * @param {number | null} minValue
+     * @param {number | null} maxValue
+     * @returns {RuleType}
+     */
+    static integerRange(minValue, maxValue)
+    {
+        let ret = RuleType.integer();
+
+        if (Number.isNaN(minValue) || Number.isNaN(maxValue))
+            throw "NaN cannot be used as a restriction";
+        ret.#numberMin = minValue;
+        ret.#numberMax = maxValue;
+
+        return ret;
+    }
+
+    /**
      * 创建 number 中的 非负整数 类型规则
      * @returns {RuleType}
      */
@@ -489,6 +667,24 @@ class RuleType
     }
 
     /**
+     * 创建 限制范围的 有限数 类型规则
+     * @param {number | null} minValue
+     * @param {number | null} maxValue
+     * @returns {RuleType}
+     */
+    static finiteRange(minValue, maxValue)
+    {
+        let ret = RuleType.finite();
+
+        if (Number.isNaN(minValue) || Number.isNaN(maxValue))
+            throw "NaN cannot be used as a restriction";
+        ret.#numberMin = minValue;
+        ret.#numberMax = maxValue;
+
+        return ret;
+    }
+
+    /**
      * 创建 string 类型规则
      * @returns {RuleType}
      */
@@ -496,6 +692,24 @@ class RuleType
     {
         let ret = new RuleType();
         ret.#string = true;
+        return ret;
+    }
+
+    /**
+     * 创建限制长度的 string 类型规则
+     * @param {number} minLength
+     * @param {number} maxLength
+     * @returns {RuleType}
+     */
+    static stringWithLength(minLength, maxLength)
+    {
+        let ret = RuleType.string();
+
+        if (Number.isNaN(minLength) || Number.isNaN(maxLength))
+            throw "NaN cannot be used as a restriction";
+        ret.#stringMinLength = minLength;
+        ret.#stringMaxLength = maxLength;
+
         return ret;
     }
 
@@ -548,6 +762,7 @@ class RuleType
      * @param {Object<string, RuleType>} necessary
      * @param {Object<string, RuleType>} [optional]
      * @param {RuleType} [defaultValueRule]
+     * @returns {RuleType}
      */
     static object(necessary, optional = {}, defaultValueRule = null)
     {
@@ -557,6 +772,11 @@ class RuleType
         let necessaryEntries = Object.entries(necessary);
         let optionalEntries = Object.entries(optional);
         ret.#necessaryKey = new Set(necessaryEntries.map(o => o[0]));
+        optionalEntries.forEach(([key]) =>
+        {
+            if (ret.#necessaryKey.has(key))
+                throw "Cannot use the same key as both necessary and optional fields";
+        });
         ret.#keyRuleMap = new Map([
             ...optionalEntries,
             ...necessaryEntries
@@ -571,22 +791,113 @@ class RuleType
      * 创建 数组 类型规则
      * @param {Array<RuleType>} ruleArray
      * @param {RuleType} [defaultValueRule]
+     * @returns {RuleType}
      */
     static array(ruleArray, defaultValueRule = null)
     {
         let ret = new RuleType();
 
         ret.#array = true;
-        ret.#arrayRule = ruleArray;
+        ret.#arrayRule = Array.from(ruleArray);
         if (defaultValueRule)
             ret.#arrayDefaultRule = defaultValueRule;
 
         return ret;
     }
+
+    /**
+     * 创建限制长度的 数组 类型规则
+     * @param {Array<RuleType>} ruleArray
+     * @param {RuleType} defaultValueRule
+     * @param {number | null} minLength
+     * @param {number | null} maxLength
+     * @returns {RuleType}
+     */
+    static arrayWithLength(ruleArray, defaultValueRule, minLength, maxLength)
+    {
+        let ret = RuleType.array(ruleArray, defaultValueRule);
+
+        if (Number.isNaN(minLength) || Number.isNaN(maxLength))
+            throw "NaN cannot be used as a restriction";
+        ret.#arrayMinLength = minLength;
+        ret.#arrayMaxLength = maxLength;
+
+        return ret;
+    }
+
+    /**
+     * 创建 Map类 类型规则
+     * @param {RuleType} [keyRule]
+     * @param {RuleType} [valueRule]
+     * @returns {RuleType}
+     */
+    static classMap(keyRule = RuleType.any(), valueRule = RuleType.any())
+    {
+        let ret = new RuleType();
+        ret.#buildInClass = true;
+        ret.#classTypeName = "Map";
+        ret.#classKeyType = keyRule;
+        ret.#classValueType = valueRule;
+        return ret;
+    }
+
+    /**
+     * 创建 Set类 类型规则
+     * @param {RuleType} [valueRule]
+     * @returns {RuleType}
+     */
+    static classSet(valueRule = RuleType.any())
+    {
+        let ret = new RuleType();
+        ret.#buildInClass = true;
+        ret.#classTypeName = "Set";
+        ret.#classValueType = valueRule;
+        return ret;
+    }
+
+    /**
+     * 创建 Uint8Array类 类型规则
+     * @returns {RuleType}
+     */
+    static classUint8Array()
+    {
+        let ret = new RuleType();
+        ret.#buildInClass = true;
+        ret.#classTypeName = "Uint8Array";
+        return ret;
+    }
 }
 
+/** a侧父限制状态 */
+let parentStateA = false;
+/** b侧父限制状态 */
+let parentStateB = false;
 /**
- * 合并值 取其中的非空内容
+ * 求交父限制
+ * @param {boolean} a
+ * @param {boolean} b
+ * @returns {boolean}
+ */
+function intersectParent(a, b)
+{
+    parentStateA = a;
+    parentStateB = b;
+    return a && b;
+}
+/**
+ * 合并父限制
+ * @param {boolean} a
+ * @param {boolean} b
+ * @returns {boolean}
+ */
+function mergeParent(a, b)
+{
+    parentStateA = a;
+    parentStateB = b;
+    return a || b;
+}
+/**
+ * 求交值 取其中的非空内容
  * 其中一个为null返回另一个值
  * 当两个都非空且不相等时抛错
  * @param {any} a
@@ -594,26 +905,32 @@ class RuleType
  */
 function intersectNonNull(a, b)
 {
+    if ((!parentStateA) || (!parentStateB))
+        return null;
     if (a == b)
         return a;
     if (a != null && b != null)
-        throw "Unable to intersect RuleType";
+        throw "Unable to intersect RuleType with conflicting types";
     return (a != null ? a : b);
 }
-
 /**
  * 合并值 取相同值
- * 其中一个为null时为null
- * 都不为null时两个值不相同时报错
+ * 当其中一侧父限制为真时 返回这一侧的值
+ * 当父限制同时为真时 其中一个为null时为null
+ * 都不为null且两个值不相同时报错
  * @param {any} a
  * @param {any} b
  */
 function mergeSame(a, b)
 {
+    if (!parentStateA)
+        return b;
+    if (!parentStateB)
+        return a;
     if (a == null || b == null)
         return null;
     if (a != b)
-        throw "Unable to merge RuleType";
+        throw "Unable to merge Ruletypes with conflicting types";
     return a;
 }
 

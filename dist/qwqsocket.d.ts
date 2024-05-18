@@ -7,7 +7,12 @@
  */
 declare class RuleType {
     /**
-     * 创建任意类型的规则
+     * 创建 不通过 任何值的规则
+     * @returns {RuleType}
+     */
+    static never(): RuleType;
+    /**
+     * 创建 通过 任意类型的规则
      * @returns {RuleType}
      */
     static any(): RuleType;
@@ -29,6 +34,13 @@ declare class RuleType {
      */
     static integer(): RuleType;
     /**
+     * 创建 限制范围的 整数 类型规则
+     * @param {number | null} minValue
+     * @param {number | null} maxValue
+     * @returns {RuleType}
+     */
+    static integerRange(minValue: number | null, maxValue: number | null): RuleType;
+    /**
      * 创建 number 中的 非负整数 类型规则
      * @returns {RuleType}
      */
@@ -39,10 +51,24 @@ declare class RuleType {
      */
     static finite(): RuleType;
     /**
+     * 创建 限制范围的 有限数 类型规则
+     * @param {number | null} minValue
+     * @param {number | null} maxValue
+     * @returns {RuleType}
+     */
+    static finiteRange(minValue: number | null, maxValue: number | null): RuleType;
+    /**
      * 创建 string 类型规则
      * @returns {RuleType}
      */
     static string(): RuleType;
+    /**
+     * 创建限制长度的 string 类型规则
+     * @param {number} minLength
+     * @param {number} maxLength
+     * @returns {RuleType}
+     */
+    static stringWithLength(minLength: number, maxLength: number): RuleType;
     /**
      * 创建 boolean 类型规则
      * @returns {RuleType}
@@ -68,6 +94,7 @@ declare class RuleType {
      * @param {Object<string, RuleType>} necessary
      * @param {Object<string, RuleType>} [optional]
      * @param {RuleType} [defaultValueRule]
+     * @returns {RuleType}
      */
     static object(necessary: {
         [x: string]: RuleType;
@@ -78,8 +105,36 @@ declare class RuleType {
      * 创建 数组 类型规则
      * @param {Array<RuleType>} ruleArray
      * @param {RuleType} [defaultValueRule]
+     * @returns {RuleType}
      */
     static array(ruleArray: Array<RuleType>, defaultValueRule?: RuleType | undefined): RuleType;
+    /**
+     * 创建限制长度的 数组 类型规则
+     * @param {Array<RuleType>} ruleArray
+     * @param {RuleType} defaultValueRule
+     * @param {number | null} minLength
+     * @param {number | null} maxLength
+     * @returns {RuleType}
+     */
+    static arrayWithLength(ruleArray: Array<RuleType>, defaultValueRule: RuleType, minLength: number | null, maxLength: number | null): RuleType;
+    /**
+     * 创建 Map类 类型规则
+     * @param {RuleType} [keyRule]
+     * @param {RuleType} [valueRule]
+     * @returns {RuleType}
+     */
+    static classMap(keyRule?: RuleType | undefined, valueRule?: RuleType | undefined): RuleType;
+    /**
+     * 创建 Set类 类型规则
+     * @param {RuleType} [valueRule]
+     * @returns {RuleType}
+     */
+    static classSet(valueRule?: RuleType | undefined): RuleType;
+    /**
+     * 创建 Uint8Array类 类型规则
+     * @returns {RuleType}
+     */
+    static classUint8Array(): RuleType;
     /**
      * 验证值是否符合此规则
      * @param {any} value
