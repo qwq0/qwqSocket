@@ -1,5 +1,8 @@
 # QwQ socket 协议
 
+若在服务器和客户端都使用此协议库而不手动实现此协议  
+则无需阅读此协议文档
+
 QwQ socket 是一种载体无关(传输层协议 / 应用层协议 / 序列化方式)的高级协议  
 单个数据包由 一个字符串 prefix 和 一个 js 对象 body 组成  
 常见的 QwQ socket 的使用组合是与 websocket + json(或 jsobin)

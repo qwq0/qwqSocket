@@ -23,7 +23,8 @@
     无需手动使用缩写事件名  
     放心的使用更长的事件名以提高代码和接口文档的可读性
 
-## API 文档
+## 文档
 
--   [使用方法](./docs/start.md)
--   [API 文档](./docs/api/README.md)
+-   [使用方法](https://github.com/qwq0/qwqSocket/blob/main/docs/start.md)
+-   [API 文档](https://github.com/qwq0/qwqSocket/blob/main/docs/api/README.md)
+-   [协议规范](https://github.com/qwq0/qwqSocket/blob/main/docs/protocol.md)
