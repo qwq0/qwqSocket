@@ -429,6 +429,20 @@ export class RuleBinder
     }
 
     /**
+     * 创建类型定义文件
+     * 便于在调用时查询
+     * @returns {string}
+     */
+    genTypeDefine()
+    {
+        let eventDef = "";
+        let queryDef = "";
+
+        let ret = eventDef + "\n" + queryDef;
+        return ret;
+    }
+
+    /**
      * 创建服务端事件规则集
      * @returns {RuleBinder}
      */
