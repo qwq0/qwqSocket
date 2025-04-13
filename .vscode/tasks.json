@@ -22,6 +22,16 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "build api docs",
+            "type": "shell",
+            "command": "npx typedoc ./dist/qwqsocket.d.ts --readme none --plugin typedoc-plugin-markdown --out ./docs/api/",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }

@@ -4,6 +4,7 @@
  */
 // @ts-ignore
 let buildInClassMap = new Map([
+    [ArrayBuffer, "ArrayBuffer"],
     [Uint8Array, "Uint8Array"],
     [Map, "Map"],
     [Set, "Set"]
@@ -16,6 +17,17 @@ let buildInClassMap = new Map([
  * 
  * 此类的值仅在创建时变化
  * 创建后的RuleType类无法发生变化
+ * 
+ * 包含几个基本类型
+ *  - number
+ *  - boolean
+ *  - string
+ *  - bigint
+ *  - array
+ *  - object
+ *  - buildInClass
+ *  - null
+ *  - undefined
  */
 export class RuleType
 {
@@ -69,13 +81,11 @@ export class RuleType
      */
     #numberMax = null;
 
-
     /**
      * 允许 boolean 类型
      * @type {boolean}
      */
     #boolean = false;
-
 
     /**
      * 允许 string 类型
@@ -93,13 +103,11 @@ export class RuleType
      */
     #stringMaxLength = null;
 
-
     /**
      * 允许 bigint 类型
      * @type {boolean}
      */
     #biging = false;
-
 
     /**
      * 允许 数组
@@ -126,7 +134,6 @@ export class RuleType
      * @type {number | null}
      */
     #arrayMaxLength = null;
-
 
     /**
      * 允许 对象 (不包括 数组)
@@ -157,7 +164,7 @@ export class RuleType
     #buildInClass = false;
     /**
      * 对于js内置类 允许哪一种内置类
-     * @type {"Map" | "Set" | "Uint8Array" | null}
+     * @type {"Map" | "Set" | "Uint8Array" | "ArrayBuffer" | null}
      */
     #classTypeName = null;
     /**
@@ -171,7 +178,6 @@ export class RuleType
      */
     #classValueType = null;
 
-
     /**
      * 允许 null
      * @type {boolean}
@@ -183,11 +189,11 @@ export class RuleType
      */
     #enableUndefined = false;
 
-
     /**
      * 枚举类型的值
-     * 表示仅允许此集合的值
+     * 表示总允许此集合的值
      * 此属性的优先级最高
+     * 不在此集合中的值将正常进行判定
      * @type {Set<any>}
      */
     #enumSet = null;
@@ -204,7 +210,7 @@ export class RuleType
             return true;
         switch (typeof (value))
         {
-            case "number": {
+            case "number": { // 数值类型
                 if (!this.#number)
                     return false;
 
@@ -238,10 +244,10 @@ export class RuleType
 
                 return true;
             }
-            case "boolean": {
+            case "boolean": { // bool类型
                 return this.#boolean;
             }
-            case "string": {
+            case "string": { // 字符串类型
                 if (!this.#string)
                     return false;
 
@@ -252,13 +258,13 @@ export class RuleType
 
                 return true;
             }
-            case "object": {
+            case "object": { // 对象
                 if (value === null)
-                {
+                { // null
                     return this.#enableNull;
                 }
                 else if (Array.isArray(value))
-                {
+                { // 数组
                     if (!this.#array)
                         return false;
 
@@ -304,7 +310,7 @@ export class RuleType
                     return true;
                 }
                 else if (this.#buildInClass && buildInClassMap.has(value?.constructor))
-                {
+                { // 内置类
                     let classTypeName = buildInClassMap.get(value.constructor);
                     if (classTypeName != this.#classTypeName)
                         return false;
@@ -340,9 +346,12 @@ export class RuleType
                     }
                 }
                 else
-                {
+                { // 普通对象
                     if (!this.#object)
                         return false;
+
+                    if (Object.getPrototypeOf(value) != Object.prototype)
+                        return;
 
                     if (
                         this.#necessaryKey.size == 0 &&
@@ -380,13 +389,20 @@ export class RuleType
                     return true;
                 }
             }
-            case "bigint": {
+            case "bigint": { // bigint
                 if (!this.#biging)
                     return false;
                 return true;
             }
-            case "undefined": {
+            case "undefined": { // undefined
                 return this.#enableUndefined;
+            }
+            // 以下两个类型应该用不到吧
+            case "function": { // 函数
+                return false;
+            }
+            case "symbol": { // symbol
+                return false;
             }
         }
         return false;
@@ -395,6 +411,7 @@ export class RuleType
     /**
      * 合并两个规则
      * 这不是严格合并
+     * 应当仅合并不同基本类型的值
      * @param {RuleType} target
      * @returns {RuleType}
      */
@@ -484,6 +501,8 @@ export class RuleType
     /**
      * 求交两个规则
      * 这不是严格求交
+     * ! 注意 ! 应当避免使用此方法
+     * 此方法可能在未来被弃用
      * @param {RuleType} target
      * @returns {RuleType}
      */
@@ -864,6 +883,18 @@ export class RuleType
         let ret = new RuleType();
         ret.#buildInClass = true;
         ret.#classTypeName = "Uint8Array";
+        return ret;
+    }
+
+    /**
+     * 创建 ArrayBuffer类 类型规则
+     * @returns {RuleType}
+     */
+    static classArrayBuffer()
+    {
+        let ret = new RuleType();
+        ret.#buildInClass = true;
+        ret.#classTypeName = "ArrayBuffer";
         return ret;
     }
 }

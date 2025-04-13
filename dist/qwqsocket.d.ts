@@ -4,6 +4,17 @@
  *
  * 此类的值仅在创建时变化
  * 创建后的RuleType类无法发生变化
+ *
+ * 包含几个基本类型
+ *  - number
+ *  - boolean
+ *  - string
+ *  - bigint
+ *  - array
+ *  - object
+ *  - buildInClass
+ *  - null
+ *  - undefined
  */
 declare class RuleType {
     /**
@@ -136,13 +147,19 @@ declare class RuleType {
      */
     static classUint8Array(): RuleType;
     /**
+     * 创建 ArrayBuffer类 类型规则
+     * @returns {RuleType}
+     */
+    static classArrayBuffer(): RuleType;
+    /**
      * 验证值是否符合此规则
      * @param {any} value
      */
-    verify(value: any): boolean;
+    verify(value: any): boolean | undefined;
     /**
      * 合并两个规则
      * 这不是严格合并
+     * 应当仅合并不同基本类型的值
      * @param {RuleType} target
      * @returns {RuleType}
      */
@@ -150,6 +167,8 @@ declare class RuleType {
     /**
      * 求交两个规则
      * 这不是严格求交
+     * ! 注意 ! 应当避免使用此方法
+     * 此方法可能在未来被弃用
      * @param {RuleType} target
      * @returns {RuleType}
      */
