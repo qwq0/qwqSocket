@@ -107,7 +107,7 @@ export class RuleType
      * 允许 bigint 类型
      * @type {boolean}
      */
-    #biging = false;
+    #bigint = false;
 
     /**
      * 允许 数组
@@ -390,7 +390,7 @@ export class RuleType
                 }
             }
             case "bigint": { // bigint
-                if (!this.#biging)
+                if (!this.#bigint)
                     return false;
                 return true;
             }
@@ -441,7 +441,7 @@ export class RuleType
             ret.#stringMaxLength = mergeSame(this.#stringMaxLength, target.#stringMaxLength);
         }
 
-        ret.#biging = this.#biging || target.#biging;
+        ret.#bigint = this.#bigint || target.#bigint;
 
         if (ret.#array = mergeParent(this.#array, target.#array))
         {
@@ -534,7 +534,7 @@ export class RuleType
             ret.#stringMaxLength = intersectNonNull(this.#stringMaxLength, target.#stringMaxLength);
         }
 
-        ret.#biging = this.#biging && target.#biging;
+        ret.#bigint = this.#bigint && target.#bigint;
 
         if (ret.#array = intersectParent(this.#array, target.#array))
         {
@@ -578,6 +578,42 @@ export class RuleType
         }
 
         return ret;
+    }
+
+    /**
+     * 生成类型定义格式
+     * @returns {string}
+     */
+    typeDefine()
+    {
+        /**
+         * @type {Array<string>}
+         */
+        let orList = [];
+
+        if (this.#number)
+            orList.push("number");
+        if (this.#boolean)
+            orList.push("boolean");
+        if (this.#string)
+            orList.push("string");
+        if (this.#bigint)
+            orList.push("bigint");
+        if (this.#array)
+            orList.push("Array");
+        if (this.#object)
+            orList.push("Object");
+        if (this.#buildInClass)
+            orList.push(this.#classTypeName);
+        if (this.#enableNull)
+            orList.push("null");
+        if (this.#enableUndefined)
+            orList.push("undefined");
+
+        if (orList.length == 0)
+            return "never";
+        else
+            return orList.join(" | ");
     }
 
     /**
@@ -750,7 +786,7 @@ export class RuleType
     static bigint()
     {
         let ret = new RuleType();
-        ret.#biging = true;
+        ret.#bigint = true;
         return ret;
     }
 
