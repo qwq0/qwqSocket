@@ -600,9 +600,33 @@ export class RuleType
         if (this.#bigint)
             orList.push("bigint");
         if (this.#array)
+        {
             orList.push("Array");
+        }
         if (this.#object)
-            orList.push("Object");
+        {
+            if (this.#keyRuleMap.size == 0)
+            {
+                if (this.#defaultValueRule)
+                    orList.push(`Object<string, ${this.#defaultValueRule.typeDefine()}>`);
+                else
+                    orList.push(`Object`);
+            }
+            else
+            {
+                /** @type {Array<string>} */
+                let valueTypeList = [];
+                this.#keyRuleMap.forEach((value, key) =>
+                {
+                    valueTypeList.push(
+                        key + (this.#necessaryKey.has(key) ? ": " : "?: ") + value.typeDefine()
+                    );
+                });
+                if (this.#defaultValueRule)
+                    valueTypeList.push(`[x: string]?: ${this.#defaultValueRule.typeDefine()}`);
+                orList.push("{ " + valueTypeList.join(", ") + " }");
+            }
+        }
         if (this.#buildInClass)
             orList.push(this.#classTypeName);
         if (this.#enableNull)
