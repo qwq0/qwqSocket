@@ -303,4 +303,14 @@ export class EventRule
         });
         return ret;
     }
+
+    /**
+     * 生成类型定义格式
+     * @returns {string}
+     */
+    typeDefine()
+    {
+        let ret = "";
+        return ret;
+    }
 }

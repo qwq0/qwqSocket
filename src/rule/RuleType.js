@@ -601,7 +601,27 @@ export class RuleType
             orList.push("bigint");
         if (this.#array)
         {
-            orList.push("Array");
+            if (this.#arrayRule.length == 0)
+            {
+                if (this.#arrayDefaultRule)
+                    orList.push(`Array<${this.#arrayDefaultRule.typeDefine()}>`);
+                else
+                    orList.push("Array");
+            }
+            else
+            {
+                /** @type {Array<string>} */
+                let valueTypeList = [];
+                let defaultType = (this.#arrayDefaultRule ? this.#arrayDefaultRule.typeDefine() : "never");
+                for (let i = 0; i < this.#arrayRule.length; i++)
+                {
+                    let rule = this.#arrayRule[i];
+                    valueTypeList.push(rule ? rule.typeDefine() : defaultType);
+                }
+                if (this.#arrayDefaultRule)
+                    valueTypeList.push("..." + defaultType);
+                orList.push("[" + valueTypeList.join(", ") + "]");
+            }
         }
         if (this.#object)
         {
