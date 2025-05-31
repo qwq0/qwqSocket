@@ -306,11 +306,20 @@ export class EventRule
 
     /**
      * 生成类型定义格式
+     * 获取事件元对象的类型定义格式
      * @returns {string}
      */
     typeDefine()
     {
-        let ret = "";
-        return ret;
+        let contents = [];
+        this.metaObjKeyList.forEach(key =>
+        {
+            let valueType = this.#metaObjRuleMap.get(key);
+            if (valueType == undefined)
+                throw "missing meta object type rule";
+            let valueTypeDef = valueType.typeDefine();
+            contents.push(key + ": " + valueTypeDef + ";");
+        });
+        return ("{\n" + contents.map(o => "    " + o).join("\n") + "\n}");
     }
 }

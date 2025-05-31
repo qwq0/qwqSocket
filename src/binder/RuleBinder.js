@@ -435,10 +435,23 @@ export class RuleBinder
      */
     genTypeDefine()
     {
-        let eventDef = "";
-        let queryDef = "";
+        /** @type {Array<{ name: string, metaObjType: string }>} */
+        let eventDefList = [];
+        /** @type {Array<{ name: string, reqType: string, rspType: string }>} */
+        let queryDefList = [];
 
-        let ret = eventDef + "\n" + queryDef;
+        this.#eventNameList.forEach(o =>
+        {
+            let splIndex = o.lastIndexOf("-");
+            if(splIndex == -1)
+            { // 事件
+            }
+            else
+            { // 查询
+            }
+        });
+
+        let ret = eventDefList.join("\n") + "\n" + queryDefList.join("\n");
         return ret;
     }
 
