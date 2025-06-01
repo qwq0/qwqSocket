@@ -431,28 +431,82 @@ export class RuleBinder
     /**
      * 创建类型定义文件
      * 便于在调用时查询
-     * @returns {string}
+     * @returns {{
+     *  event: Array<{
+     *      name: string,
+     *      metaType: string
+     *  }>,
+     *  query: Array<{
+     *      name: string,
+     *      reqType: string,
+     *      rspType: string
+     *  }>
+     * }}
      */
     genTypeDefine()
     {
-        /** @type {Array<{ name: string, metaObjType: string }>} */
-        let eventDefList = [];
-        /** @type {Array<{ name: string, reqType: string, rspType: string }>} */
-        let queryDefList = [];
+        /** @type {Map<string, { metaType: string }>} */
+        let eventDefMap = new Map();
+        /** @type {Map<string, { reqType: string, rspType: string }>} */
+        let queryDefMap = new Map();
 
         this.#eventNameList.forEach(o =>
         {
             let splIndex = o.lastIndexOf("-");
-            if(splIndex == -1)
+            let evnetRule = this.#eventRuleMap.get(o);
+            if (splIndex == -1)
             { // 事件
+                eventDefMap.set(o, {
+                    metaType: evnetRule.typeDefine()
+                });
             }
             else
             { // 查询
+                let name = o.slice(0, splIndex);
+                let suffix = o.slice(splIndex + 1);
+                if (
+                    suffix == "req" ||
+                    suffix == "rsp" ||
+                    suffix == "ersp"
+                )
+                {
+                    let info = queryDefMap.get(name);
+                    if (!info)
+                    {
+                        info = {
+                            reqType: null,
+                            rspType: null
+                        };
+                        queryDefMap.set(name, info);
+                    }
+
+                    if (suffix == "req")
+                    {
+                        info.reqType = evnetRule.typeDefine();
+                    }
+                    else if (suffix == "rsp")
+                    {
+                        info.rspType = evnetRule.typeDefine();
+                    }
+                }
+                else
+                {
+                    throw "unknow surfix name";
+                }
             }
         });
 
-        let ret = eventDefList.join("\n") + "\n" + queryDefList.join("\n");
-        return ret;
+        return {
+            event: Array.from(eventDefMap.entries()).map(o=>({
+                name: o[0],
+                metaType: o[1].metaType
+            })),
+            query: Array.from(queryDefMap.entries()).map(o=>({
+                name: o[0],
+                reqType: o[1].reqType,
+                rspType: o[1].rspType
+            }))
+        };
     }
 
     /**
