@@ -77,7 +77,7 @@ export class QwQSocketServerClient
     }
 
     /**
-     * 触发事件
+     * 触发本端事件
      * @param {string} eventName
      * @param {object} eventMetaObj
      */
@@ -107,6 +107,7 @@ export class QwQSocketServerClient
     {
         if (prefix.length == 0)
             return;
+        
         let prefixFirstCharCode = prefix.charCodeAt(0);
         if (
             (48 <= prefixFirstCharCode && prefixFirstCharCode <= 57) || // 0 - 9

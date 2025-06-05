@@ -72,7 +72,7 @@ export class QwQSocketClient
     }
 
     /**
-     * 触发事件
+     * 触发本端事件
      * @param {string} eventName
      * @param {object} eventMetaObj
      */
@@ -101,6 +101,22 @@ export class QwQSocketClient
     {
         if (prefix.length == 0)
             return;
+
+        let prefixFirstCharCode = prefix.charCodeAt(0);
+        if (
+            (48 <= prefixFirstCharCode && prefixFirstCharCode <= 57) || // 0 - 9
+            (97 <= prefixFirstCharCode && prefixFirstCharCode <= 122) // a - z
+        )
+        { // 以简短名触发事件
+            let shortName = prefix;
+            let eventRule = this.#clientMappingRules.getRuleByShort(shortName);
+            if (!eventRule)
+                throw "The short name provided by the server does not exist";
+            let eventMetaObj = eventRule.verifyGetArray(body);
+            this.#triggerLocalEvent(eventRule.eventName, eventMetaObj);
+            return;
+        }
+
         switch (prefix[0])
         {
             case "*": {
@@ -116,6 +132,7 @@ export class QwQSocketClient
                 break;
             }
             case "+": {
+                // 以事件名触发事件并报告简短名
                 if (!submitClientShortNameAndTriggerObjRule.verify(body))
                     throw "The body of the submit client short name packet sent by server has an type error";
 
@@ -143,6 +160,7 @@ export class QwQSocketClient
                 break;
             }
             case "=": {
+                // 报告服务端事件对应的简短名
                 if (!submitServerShortNameObjRule.verify(body))
                     throw "The body of the submit server short name packet sent by server has an type error";
 
@@ -173,23 +191,7 @@ export class QwQSocketClient
                 break;
             }
             default: {
-                let prefixFirstCharCode = prefix.charCodeAt(0);
-                if (
-                    (48 <= prefixFirstCharCode && prefixFirstCharCode <= 57) || // 0 - 9
-                    (97 <= prefixFirstCharCode && prefixFirstCharCode <= 122) // a - z
-                )
-                { // 以简短名触发事件
-                    let shortName = prefix;
-                    let eventRule = this.#clientMappingRules.getRuleByShort(shortName);
-                    if (!eventRule)
-                        throw "The short name provided by the server does not exist";
-                    let eventMetaObj = eventRule.verifyGetArray(body);
-                    this.#triggerLocalEvent(eventRule.eventName, eventMetaObj);
-                }
-                else
-                {
-                    throw "protocol error";
-                }
+                throw "protocol error";
             }
         }
     }
