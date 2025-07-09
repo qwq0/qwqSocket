@@ -350,8 +350,8 @@ export class RuleType
                     if (!this.#object)
                         return false;
 
-                    if (Object.getPrototypeOf(value) != Object.prototype)
-                        return;
+                    // if (Object.getPrototypeOf(value) != Object.prototype)
+                    //     return;
 
                     if (
                         this.#necessaryKey.size == 0 &&

@@ -15,3 +15,7 @@
 - [QwQSocketServerClient](classes/QwQSocketServerClient.md)
 - [RuleBinder](classes/RuleBinder.md)
 - [RuleType](classes/RuleType.md)
+
+## Functions
+
+- [getTypeDefineByBinder](functions/getTypeDefineByBinder.md)

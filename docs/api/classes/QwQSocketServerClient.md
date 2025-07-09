@@ -6,7 +6,7 @@
 
 # Class: QwQSocketServerClient
 
-Defined in: [qwqsocket.d.ts:380](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L380)
+Defined in: [qwqsocket.d.ts:391](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L391)
 
 连接到 qwq-socket 服务器的客户端实例
 绑定到一个服务器上下文
@@ -27,7 +27,7 @@ Defined in: [qwqsocket.d.ts:380](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **data**: `object`
 
-Defined in: [qwqsocket.d.ts:398](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L398)
+Defined in: [qwqsocket.d.ts:409](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L409)
 
 客户端的自定义数据
 
@@ -37,7 +37,7 @@ Defined in: [qwqsocket.d.ts:398](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **eventListener**: `object`
 
-Defined in: [qwqsocket.d.ts:403](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L403)
+Defined in: [qwqsocket.d.ts:414](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L414)
 
 事件监听器
 
@@ -51,7 +51,7 @@ Defined in: [qwqsocket.d.ts:403](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **sendData**: `EventHandler`\<\{ `body`: `any`; `prefix`: `string`; \}\>
 
-Defined in: [qwqsocket.d.ts:390](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L390)
+Defined in: [qwqsocket.d.ts:401](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L401)
 
 实例想要发送一个包
 
@@ -61,7 +61,7 @@ Defined in: [qwqsocket.d.ts:390](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **receiveData**(`prefix`, `body`): `void`
 
-Defined in: [qwqsocket.d.ts:411](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L411)
+Defined in: [qwqsocket.d.ts:422](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L422)
 
 收到客户端的数据
 
@@ -85,7 +85,7 @@ Defined in: [qwqsocket.d.ts:411](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **sendTrigger**(`eventName`, `eventMetaObj`): `void`
 
-Defined in: [qwqsocket.d.ts:417](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L417)
+Defined in: [qwqsocket.d.ts:428](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L428)
 
 触发对端事件
 
@@ -109,7 +109,7 @@ Defined in: [qwqsocket.d.ts:417](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **create**(`server`): `QwQSocketServerClient`
 
-Defined in: [qwqsocket.d.ts:385](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L385)
+Defined in: [qwqsocket.d.ts:396](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L396)
 
 创建客户端实例
 

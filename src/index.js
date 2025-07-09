@@ -9,3 +9,4 @@ export { BinderOperator } from "./binder/BinderOperator.js";
 export { QueryError } from "./binder/QueryError.js";
 export { QueryTimeoutError } from "./binder/QueryTimeoutError.js";
 export { RuleBinder } from "./binder/RuleBinder.js";
+export { getTypeDefineByBinder } from "./binder/typeDefine.js";

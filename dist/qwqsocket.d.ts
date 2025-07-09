@@ -155,7 +155,7 @@ declare class RuleType {
      * 验证值是否符合此规则
      * @param {any} value
      */
-    verify(value: any): boolean | undefined;
+    verify(value: any): boolean;
     /**
      * 合并两个规则
      * 这不是严格合并
@@ -173,6 +173,11 @@ declare class RuleType {
      * @returns {RuleType}
      */
     intersect(target: RuleType): RuleType;
+    /**
+     * 生成类型定义格式
+     * @returns {string}
+     */
+    typeDefine(): string;
     #private;
 }
 
@@ -315,6 +320,12 @@ declare class EventRule {
      * @returns {EventRule} 返回当前规则元对象本身
      */
     addParamToFront(key: string, rule?: RuleType | undefined): EventRule;
+    /**
+     * 生成类型定义格式
+     * 获取事件元对象的类型定义格式
+     * @returns {string}
+     */
+    typeDefine(): string;
     #private;
 }
 
@@ -649,7 +660,41 @@ declare class RuleBinder {
      * @param {RuleBinder} target
      */
     bindOpposite(target: RuleBinder): void;
+    /**
+     * 创建类型定义文件
+     * 便于在调用时查询
+     * @returns {{
+     *  event: Array<{
+     *      name: string,
+     *      metaType: string
+     *  }>,
+     *  query: Array<{
+     *      name: string,
+     *      reqType: string,
+     *      rspType: string
+     *  }>
+     * }}
+     */
+    genTypeDefine(): {
+        event: Array<{
+            name: string;
+            metaType: string;
+        }>;
+        query: Array<{
+            name: string;
+            reqType: string;
+            rspType: string;
+        }>;
+    };
     #private;
 }
 
-export { BinderOperator, EventRule, QueryError, QueryTimeoutError, QwQSocketClient, QwQSocketServer, QwQSocketServerClient, RuleBinder, RuleType };
+/**
+ * 通过绑定器生成类型定义文件
+ * @param {RuleBinder} serverBinder
+ * @param {RuleBinder} clientBinder
+ * @returns {string}
+ */
+declare function getTypeDefineByBinder(serverBinder: RuleBinder, clientBinder: RuleBinder): string;
+
+export { BinderOperator, EventRule, QueryError, QueryTimeoutError, QwQSocketClient, QwQSocketServer, QwQSocketServerClient, RuleBinder, RuleType, getTypeDefineByBinder };

@@ -6,7 +6,7 @@
 
 # Class: BinderOperator\<T\>
 
-Defined in: [qwqsocket.d.ts:496](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L496)
+Defined in: [qwqsocket.d.ts:507](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L507)
 
 绑定器操作器
 用于操作socket发送事件或查询
@@ -23,7 +23,7 @@ Defined in: [qwqsocket.d.ts:496](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **new BinderOperator**\<`T`\>(`target`): `BinderOperator`\<`T`\>
 
-Defined in: [qwqsocket.d.ts:500](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L500)
+Defined in: [qwqsocket.d.ts:511](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L511)
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: [qwqsocket.d.ts:500](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **query**: `object`
 
-Defined in: [qwqsocket.d.ts:514](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L514)
+Defined in: [qwqsocket.d.ts:525](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L525)
 
 查询映射对象
 调用函数触发对端事件
@@ -56,7 +56,7 @@ Defined in: [qwqsocket.d.ts:514](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **trigger**: `object`
 
-Defined in: [qwqsocket.d.ts:506](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L506)
+Defined in: [qwqsocket.d.ts:517](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L517)
 
 触发事件映射对象
 调用函数触发对端事件
@@ -71,7 +71,7 @@ Defined in: [qwqsocket.d.ts:506](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **addQuery**(`queryName`): `void`
 
-Defined in: [qwqsocket.d.ts:526](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L526)
+Defined in: [qwqsocket.d.ts:537](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L537)
 
 添加查询
 
@@ -91,7 +91,7 @@ Defined in: [qwqsocket.d.ts:526](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **addTrigger**(`eventName`): `void`
 
-Defined in: [qwqsocket.d.ts:521](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L521)
+Defined in: [qwqsocket.d.ts:532](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L532)
 
 添加触发器
 

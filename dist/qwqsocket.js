@@ -107,7 +107,7 @@ class RuleType
      * 允许 bigint 类型
      * @type {boolean}
      */
-    #biging = false;
+    #bigint = false;
 
     /**
      * 允许 数组
@@ -350,8 +350,8 @@ class RuleType
                     if (!this.#object)
                         return false;
 
-                    if (Object.getPrototypeOf(value) != Object.prototype)
-                        return;
+                    // if (Object.getPrototypeOf(value) != Object.prototype)
+                    //     return;
 
                     if (
                         this.#necessaryKey.size == 0 &&
@@ -390,7 +390,7 @@ class RuleType
                 }
             }
             case "bigint": { // bigint
-                if (!this.#biging)
+                if (!this.#bigint)
                     return false;
                 return true;
             }
@@ -441,7 +441,7 @@ class RuleType
             ret.#stringMaxLength = mergeSame(this.#stringMaxLength, target.#stringMaxLength);
         }
 
-        ret.#biging = this.#biging || target.#biging;
+        ret.#bigint = this.#bigint || target.#bigint;
 
         if (ret.#array = mergeParent(this.#array, target.#array))
         {
@@ -534,7 +534,7 @@ class RuleType
             ret.#stringMaxLength = intersectNonNull(this.#stringMaxLength, target.#stringMaxLength);
         }
 
-        ret.#biging = this.#biging && target.#biging;
+        ret.#bigint = this.#bigint && target.#bigint;
 
         if (ret.#array = intersectParent(this.#array, target.#array))
         {
@@ -578,6 +578,86 @@ class RuleType
         }
 
         return ret;
+    }
+
+    /**
+     * 生成类型定义格式
+     * @returns {string}
+     */
+    typeDefine()
+    {
+        /**
+         * @type {Array<string>}
+         */
+        let orList = [];
+
+        if (this.#number)
+            orList.push("number");
+        if (this.#boolean)
+            orList.push("boolean");
+        if (this.#string)
+            orList.push("string");
+        if (this.#bigint)
+            orList.push("bigint");
+        if (this.#array)
+        {
+            if (this.#arrayRule.length == 0)
+            {
+                if (this.#arrayDefaultRule)
+                    orList.push(`Array<${this.#arrayDefaultRule.typeDefine()}>`);
+                else
+                    orList.push("Array");
+            }
+            else
+            {
+                /** @type {Array<string>} */
+                let valueTypeList = [];
+                let defaultType = (this.#arrayDefaultRule ? this.#arrayDefaultRule.typeDefine() : "never");
+                for (let i = 0; i < this.#arrayRule.length; i++)
+                {
+                    let rule = this.#arrayRule[i];
+                    valueTypeList.push(rule ? rule.typeDefine() : defaultType);
+                }
+                if (this.#arrayDefaultRule)
+                    valueTypeList.push("..." + defaultType);
+                orList.push("[" + valueTypeList.join(", ") + "]");
+            }
+        }
+        if (this.#object)
+        {
+            if (this.#keyRuleMap.size == 0)
+            {
+                if (this.#defaultValueRule)
+                    orList.push(`Object<string, ${this.#defaultValueRule.typeDefine()}>`);
+                else
+                    orList.push(`Object`);
+            }
+            else
+            {
+                /** @type {Array<string>} */
+                let valueTypeList = [];
+                this.#keyRuleMap.forEach((value, key) =>
+                {
+                    valueTypeList.push(
+                        key + (this.#necessaryKey.has(key) ? ": " : "?: ") + value.typeDefine()
+                    );
+                });
+                if (this.#defaultValueRule)
+                    valueTypeList.push(`[x: string]?: ${this.#defaultValueRule.typeDefine()}`);
+                orList.push("{ " + valueTypeList.join(", ") + " }");
+            }
+        }
+        if (this.#buildInClass)
+            orList.push(this.#classTypeName);
+        if (this.#enableNull)
+            orList.push("null");
+        if (this.#enableUndefined)
+            orList.push("undefined");
+
+        if (orList.length == 0)
+            return "never";
+        else
+            return orList.join(" | ");
     }
 
     /**
@@ -750,7 +830,7 @@ class RuleType
     static bigint()
     {
         let ret = new RuleType();
-        ret.#biging = true;
+        ret.#bigint = true;
         return ret;
     }
 
@@ -1268,6 +1348,25 @@ class EventRule
         });
         return ret;
     }
+
+    /**
+     * 生成类型定义格式
+     * 获取事件元对象的类型定义格式
+     * @returns {string}
+     */
+    typeDefine()
+    {
+        let contents = [];
+        this.metaObjKeyList.forEach(key =>
+        {
+            let valueType = this.#metaObjRuleMap.get(key);
+            if (valueType == undefined)
+                throw "missing meta object type rule";
+            let valueTypeDef = valueType.typeDefine();
+            contents.push(key + ": " + valueTypeDef + ";");
+        });
+        return ("{\n" + contents.map(o => "    " + o).join("\n") + "\n}");
+    }
 }
 
 /**
@@ -1590,7 +1689,7 @@ class QwQSocketServerClient
     }
 
     /**
-     * 触发事件
+     * 触发本端事件
      * @param {string} eventName
      * @param {object} eventMetaObj
      */
@@ -1620,6 +1719,7 @@ class QwQSocketServerClient
     {
         if (prefix.length == 0)
             return;
+        
         let prefixFirstCharCode = prefix.charCodeAt(0);
         if (
             (48 <= prefixFirstCharCode && prefixFirstCharCode <= 57) || // 0 - 9
@@ -1807,7 +1907,7 @@ class QwQSocketClient
     }
 
     /**
-     * 触发事件
+     * 触发本端事件
      * @param {string} eventName
      * @param {object} eventMetaObj
      */
@@ -1836,6 +1936,22 @@ class QwQSocketClient
     {
         if (prefix.length == 0)
             return;
+
+        let prefixFirstCharCode = prefix.charCodeAt(0);
+        if (
+            (48 <= prefixFirstCharCode && prefixFirstCharCode <= 57) || // 0 - 9
+            (97 <= prefixFirstCharCode && prefixFirstCharCode <= 122) // a - z
+        )
+        { // 以简短名触发事件
+            let shortName = prefix;
+            let eventRule = this.#clientMappingRules.getRuleByShort(shortName);
+            if (!eventRule)
+                throw "The short name provided by the server does not exist";
+            let eventMetaObj = eventRule.verifyGetArray(body);
+            this.#triggerLocalEvent(eventRule.eventName, eventMetaObj);
+            return;
+        }
+
         switch (prefix[0])
         {
             case "*": {
@@ -1851,6 +1967,7 @@ class QwQSocketClient
                 break;
             }
             case "+": {
+                // 以事件名触发事件并报告简短名
                 if (!submitClientShortNameAndTriggerObjRule.verify(body))
                     throw "The body of the submit client short name packet sent by server has an type error";
 
@@ -1878,6 +1995,7 @@ class QwQSocketClient
                 break;
             }
             case "=": {
+                // 报告服务端事件对应的简短名
                 if (!submitServerShortNameObjRule.verify(body))
                     throw "The body of the submit server short name packet sent by server has an type error";
 
@@ -1908,23 +2026,7 @@ class QwQSocketClient
                 break;
             }
             default: {
-                let prefixFirstCharCode = prefix.charCodeAt(0);
-                if (
-                    (48 <= prefixFirstCharCode && prefixFirstCharCode <= 57) || // 0 - 9
-                    (97 <= prefixFirstCharCode && prefixFirstCharCode <= 122) // a - z
-                )
-                { // 以简短名触发事件
-                    let shortName = prefix;
-                    let eventRule = this.#clientMappingRules.getRuleByShort(shortName);
-                    if (!eventRule)
-                        throw "The short name provided by the server does not exist";
-                    let eventMetaObj = eventRule.verifyGetArray(body);
-                    this.#triggerLocalEvent(eventRule.eventName, eventMetaObj);
-                }
-                else
-                {
-                    throw "protocol error";
-                }
+                throw "protocol error";
             }
         }
     }
@@ -2203,12 +2305,14 @@ class RuleBinder
 
     /**
      * 事件名集合
+     * 包括处理后的查询名
      * @type {Set<string>}
      */
     #eventNameSet = new Set();
 
     /**
      * 事件名 到 事件规则 映射
+     * 包括处理后的查询规则
      * @type {Map<string, EventRule>}
      */
     #eventRuleMap = new Map();
@@ -2224,6 +2328,13 @@ class RuleBinder
      * @type {Set<string>}
      */
     #queryNameSet = new Set();
+
+    /**
+     * 查询名 到 查询原始规则信息 映射
+     * 仅在生成类型定义时使用
+     * @type {Map<string, { req: EventRule, rsp: EventRule }>}
+     */
+    #queryRuleMap = new Map();
 
     /**
      * 绑定到指定端的事件
@@ -2348,6 +2459,8 @@ class RuleBinder
 
         if (requestRule.hasKey(metaObjQueryIdKey) || responseRule.hasKey(metaObjQueryIdKey))
             throw `Cannot use internally occupied name "${metaObjQueryIdKey}"`;
+
+        this.#queryRuleMap.set(queryName, { req: requestRule, rsp: responseRule });
 
         let opposite = this.#opposite;
         if (opposite == null)
@@ -2612,6 +2725,74 @@ class RuleBinder
     }
 
     /**
+     * 创建类型定义文件
+     * 便于在调用时查询
+     * @returns {{
+     *  event: Array<{
+     *      name: string,
+     *      metaType: string
+     *  }>,
+     *  query: Array<{
+     *      name: string,
+     *      reqType: string,
+     *      rspType: string
+     *  }>
+     * }}
+     */
+    genTypeDefine()
+    {
+        /** @type {Map<string, { metaType: string }>} */
+        let eventDefMap = new Map();
+        /** @type {Map<string, { reqType: string, rspType: string }>} */
+        let queryDefMap = new Map();
+
+        this.#eventNameList.forEach(o =>
+        {
+            let splIndex = o.lastIndexOf("-");
+            if (splIndex == -1)
+            { // 事件
+                let evnetRule = this.#eventRuleMap.get(o);
+                eventDefMap.set(o, {
+                    metaType: evnetRule.typeDefine()
+                });
+            }
+            else
+            { // 查询
+                let suffix = o.slice(splIndex + 1);
+                if (
+                    suffix != "req" &&
+                    suffix != "rsp" &&
+                    suffix != "ersp"
+                )
+                {
+                    throw "unknow surfix name";
+                }
+            }
+        });
+
+        this.#queryNameSet.forEach(o =>
+        {
+            let queryRule = this.#queryRuleMap.get(o);
+            queryDefMap.set(o, {
+                reqType: queryRule.req.typeDefine(),
+                rspType: queryRule.rsp.typeDefine()
+            });
+        });
+
+        return {
+            event: Array.from(eventDefMap.entries()).map(o => ({
+                name: o[0],
+                metaType: o[1].metaType
+            })),
+            query: Array.from(queryDefMap.entries()).map(o => ({
+                name: o[0],
+                reqType: o[1].reqType,
+                rspType: o[1].rspType
+            }))
+        };
+    }
+
+    /**
      * 创建服务端事件规则集
      * @returns {RuleBinder}
      */
@@ -2634,4 +2815,90 @@ class RuleBinder
     }
 }
 
-export { BinderOperator, EventRule, QueryError, QueryTimeoutError, QwQSocketClient, QwQSocketServer, QwQSocketServerClient, RuleBinder, RuleType };
+/**
+ * @param {string} str
+ * @param {number} level
+ * @param {boolean} ignoreFirstLine
+ */
+function addIndent(str, level, ignoreFirstLine)
+{
+    let indent = "";
+    for (let i = 0; i < level; i++)
+        indent += "    ";
+    return str.split("\n").map((o, i) => (ignoreFirstLine && i == 0 ? o : indent + o)).join("\n");
+}
+
+/**
+ * 通过绑定器生成类型定义文件
+ * @param {RuleBinder} serverBinder
+ * @param {RuleBinder} clientBinder
+ * @returns {string}
+ */
+function getTypeDefineByBinder(serverBinder, clientBinder)
+{
+    let serverDefine = serverBinder.genTypeDefine();
+    let clientDefine = clientBinder.genTypeDefine();
+
+    let ret = "";
+    let separator = "\n\n";
+    let indentation = "    ";
+
+    ret += ([
+        "export type serverBinderEventMap = {",
+        serverDefine.event.map(o => `${indentation}${o.name}: ${addIndent(o.metaType, 1, true)};`).join("\n"),
+        "}"
+    ]).join("\n") + separator;
+    ret += ([
+        "export type serverBinderQueryMap = {",
+        serverDefine.query.map(o => ([
+            `${indentation}${o.name}: {`,
+            `${indentation}${indentation}req: ${addIndent(o.reqType, 2, true)};`,
+            `${indentation}${indentation}rsp: ${addIndent(o.rspType, 2, true)};`,
+            `${indentation}};`
+        ]).join("\n")).join("\n"),
+        "}"
+    ]).join("\n") + separator;
+
+
+    ret += ([
+        "export type clientBinderEventMap = {",
+        clientDefine.event.map(o => `${indentation}${o.name}: ${addIndent(o.metaType, 1, true)};`).join("\n"),
+        "}"
+    ]).join("\n") + separator;
+    ret += ([
+        "export type clientBinderQueryMap = {",
+        clientDefine.query.map(o => ([
+            `${indentation}${o.name}: {`,
+            `${indentation}${indentation}req: ${addIndent(o.reqType, 2, true)};`,
+            `${indentation}${indentation}rsp: ${addIndent(o.rspType, 2, true)};`,
+            `${indentation}};`
+        ]).join("\n")).join("\n"),
+        "}"
+    ]).join("\n") + separator;
+
+    ret += ([
+        "export interface ServerSocketOperator",
+        "{",
+        "    trigger: {",
+        "        [K in keyof clientBinderEventMap]?: (e: clientBinderEventMap[K]) => void",
+        "    };",
+        "    query: {",
+        `        [K in keyof clientBinderQueryMap]?: (e: clientBinderQueryMap[K]["req"]) => Promise<clientBinderQueryMap[K]["rsp"]>`,
+        "    };",
+        "}",
+        "",
+        "export interface ClientSocketOperator",
+        "{",
+        "    trigger: {",
+        "        [K in keyof serverBinderEventMap]?: (e: serverBinderEventMap[K]) => void",
+        "    };",
+        "    query: {",
+        `        [K in keyof serverBinderQueryMap]?: (e: serverBinderQueryMap[K]["req"]) => Promise<serverBinderQueryMap[K]["rsp"]>`,
+        "    };",
+        "}",
+    ]).join("\n") + separator;
+
+    return ret;
+}
+
+export { BinderOperator, EventRule, QueryError, QueryTimeoutError, QwQSocketClient, QwQSocketServer, QwQSocketServerClient, RuleBinder, RuleType, getTypeDefineByBinder };

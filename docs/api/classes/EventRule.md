@@ -6,7 +6,7 @@
 
 # Class: EventRule
 
-Defined in: [qwqsocket.d.ts:222](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L222)
+Defined in: [qwqsocket.d.ts:227](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L227)
 
 表示一个事件的规则
 
@@ -26,7 +26,7 @@ Defined in: [qwqsocket.d.ts:222](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **eventName**: `string`
 
-Defined in: [qwqsocket.d.ts:248](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L248)
+Defined in: [qwqsocket.d.ts:253](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L253)
 
 事件名
 
@@ -36,7 +36,7 @@ Defined in: [qwqsocket.d.ts:248](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **mappingRules**: `MappingRules`
 
-Defined in: [qwqsocket.d.ts:258](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L258)
+Defined in: [qwqsocket.d.ts:263](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L263)
 
 事件规则 所在的 映射规则
 
@@ -46,7 +46,7 @@ Defined in: [qwqsocket.d.ts:258](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **metaObjKeyList**: `string`[]
 
-Defined in: [qwqsocket.d.ts:263](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L263)
+Defined in: [qwqsocket.d.ts:268](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L268)
 
 事件元对象的key列表
 
@@ -56,7 +56,7 @@ Defined in: [qwqsocket.d.ts:263](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **shortName**: `string`
 
-Defined in: [qwqsocket.d.ts:253](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L253)
+Defined in: [qwqsocket.d.ts:258](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L258)
 
 简短名
 
@@ -66,7 +66,7 @@ Defined in: [qwqsocket.d.ts:253](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **addParamToEnd**(`key`, `rule?`): `EventRule`
 
-Defined in: [qwqsocket.d.ts:310](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L310)
+Defined in: [qwqsocket.d.ts:315](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L315)
 
 在事件规则元对象结尾追加参数
 
@@ -92,7 +92,7 @@ Defined in: [qwqsocket.d.ts:310](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **addParamToFront**(`key`, `rule?`): `EventRule`
 
-Defined in: [qwqsocket.d.ts:317](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L317)
+Defined in: [qwqsocket.d.ts:322](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L322)
 
 在事件规则元对象开头追加参数
 
@@ -118,7 +118,7 @@ Defined in: [qwqsocket.d.ts:317](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **getCopy**(): `EventRule`
 
-Defined in: [qwqsocket.d.ts:268](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L268)
+Defined in: [qwqsocket.d.ts:273](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L273)
 
 获取此事件规则的副本
 
@@ -132,7 +132,7 @@ Defined in: [qwqsocket.d.ts:268](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **getCopyWithoutType**(): `EventRule`
 
-Defined in: [qwqsocket.d.ts:273](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L273)
+Defined in: [qwqsocket.d.ts:278](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L278)
 
 获取此事件规则无类型检查的副本
 
@@ -146,7 +146,7 @@ Defined in: [qwqsocket.d.ts:273](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **hasKey**(`key`): `boolean`
 
-Defined in: [qwqsocket.d.ts:279](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L279)
+Defined in: [qwqsocket.d.ts:284](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L284)
 
 是否拥有指定的key
 
@@ -166,7 +166,7 @@ Defined in: [qwqsocket.d.ts:279](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **metaObjToArray**(`srcObj`): `any`[]
 
-Defined in: [qwqsocket.d.ts:303](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L303)
+Defined in: [qwqsocket.d.ts:308](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L308)
 
 转换元数据对象到数组
 
@@ -186,7 +186,7 @@ Defined in: [qwqsocket.d.ts:303](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **resetKeyList**(`newKeyList`): `void`
 
-Defined in: [qwqsocket.d.ts:285](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L285)
+Defined in: [qwqsocket.d.ts:290](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L290)
 
 重设key列表
 新的列表和原列表应当仅顺序不同 元素内容相同
@@ -203,11 +203,26 @@ Defined in: [qwqsocket.d.ts:285](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 ***
 
+### typeDefine()
+
+> **typeDefine**(): `string`
+
+Defined in: [qwqsocket.d.ts:328](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L328)
+
+生成类型定义格式
+获取事件元对象的类型定义格式
+
+#### Returns
+
+`string`
+
+***
+
 ### verifyGetArray()
 
 > **verifyGetArray**(`srcArray`): `object`
 
-Defined in: [qwqsocket.d.ts:291](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L291)
+Defined in: [qwqsocket.d.ts:296](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L296)
 
 从数组验证并获取事件元数据对象
 
@@ -227,7 +242,7 @@ Defined in: [qwqsocket.d.ts:291](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **verifyGetObject**(`srcObj`): `object`
 
-Defined in: [qwqsocket.d.ts:297](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L297)
+Defined in: [qwqsocket.d.ts:302](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L302)
 
 从元数据对象验证并获取事件元数据对象
 
@@ -247,7 +262,7 @@ Defined in: [qwqsocket.d.ts:297](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **create**(`metaObjRuleList`): `EventRule`
 
-Defined in: [qwqsocket.d.ts:230](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L230)
+Defined in: [qwqsocket.d.ts:235](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L235)
 
 创建事件规则
 
@@ -267,7 +282,7 @@ Defined in: [qwqsocket.d.ts:230](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **createWithoutType**(`metaObjKeyList`): `EventRule`
 
-Defined in: [qwqsocket.d.ts:241](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L241)
+Defined in: [qwqsocket.d.ts:246](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L246)
 
 创建事件规则
 不检查类型

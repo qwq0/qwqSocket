@@ -3,6 +3,7 @@ import { QwQSocketClient } from "../src/client/QwQSocketClient.js";
 import { EventRule } from "../src/rule/EventRule.js";
 import { RuleType } from "../src/rule/RuleType.js";
 import { RuleBinder } from "../src/binder/RuleBinder.js";
+import { getTypeDefineByBinder } from "../src/index.js";
 
 test("query bind test", async () =>
 {
@@ -87,6 +88,10 @@ test("query bind test", async () =>
         serverRuleBinder.applyToInstance(server);
         serverRuleBinder.applyToInstance(serverClient);
         clientRuleBinder.applyToInstance(client);
+    }
+
+    { // 输出类型定义
+        console.log(getTypeDefineByBinder(serverRuleBinder, clientRuleBinder));
     }
 
     let serverOperator = serverRuleBinder.createOperator(serverClient);

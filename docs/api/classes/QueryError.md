@@ -6,7 +6,7 @@
 
 # Class: QueryError
 
-Defined in: [qwqsocket.d.ts:533](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L533)
+Defined in: [qwqsocket.d.ts:544](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L544)
 
 查询时错误
 
@@ -20,7 +20,7 @@ Defined in: [qwqsocket.d.ts:533](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **new QueryError**(`cause`): `QueryError`
 
-Defined in: [qwqsocket.d.ts:539](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L539)
+Defined in: [qwqsocket.d.ts:550](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L550)
 
 请求错误
 在请求处理函数中抛出将返回错误
@@ -41,7 +41,7 @@ Defined in: [qwqsocket.d.ts:539](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **cause**: `string`
 
-Defined in: [qwqsocket.d.ts:544](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L544)
+Defined in: [qwqsocket.d.ts:555](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L555)
 
 错误原因
 
@@ -51,7 +51,7 @@ Defined in: [qwqsocket.d.ts:544](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **toString**(): `string`
 
-Defined in: [qwqsocket.d.ts:545](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L545)
+Defined in: [qwqsocket.d.ts:556](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L556)
 
 #### Returns
 

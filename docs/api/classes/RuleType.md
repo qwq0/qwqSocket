@@ -6,7 +6,7 @@
 
 # Class: RuleType
 
-Defined in: [qwqsocket.d.ts:19](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L19)
+Defined in: [qwqsocket.d.ts:19](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L19)
 
 规则类型
 用于对值的类型进行检查
@@ -41,7 +41,7 @@ Defined in: [qwqsocket.d.ts:19](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > **intersect**(`target`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:175](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L175)
+Defined in: [qwqsocket.d.ts:175](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L175)
 
 求交两个规则
 这不是严格求交
@@ -64,7 +64,7 @@ Defined in: [qwqsocket.d.ts:175](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > **merge**(`target`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:166](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L166)
+Defined in: [qwqsocket.d.ts:166](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L166)
 
 合并两个规则
 这不是严格合并
@@ -82,11 +82,25 @@ Defined in: [qwqsocket.d.ts:166](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 ***
 
+### typeDefine()
+
+> **typeDefine**(): `string`
+
+Defined in: [qwqsocket.d.ts:180](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L180)
+
+生成类型定义格式
+
+#### Returns
+
+`string`
+
+***
+
 ### verify()
 
 > **verify**(`value`): `boolean`
 
-Defined in: [qwqsocket.d.ts:158](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L158)
+Defined in: [qwqsocket.d.ts:158](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L158)
 
 验证值是否符合此规则
 
@@ -106,7 +120,7 @@ Defined in: [qwqsocket.d.ts:158](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **any**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:29](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L29)
+Defined in: [qwqsocket.d.ts:29](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L29)
 
 创建 通过 任意类型的规则
 
@@ -120,7 +134,7 @@ Defined in: [qwqsocket.d.ts:29](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **array**(`ruleArray`, `defaultValueRule?`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:121](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L121)
+Defined in: [qwqsocket.d.ts:121](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L121)
 
 创建 数组 类型规则
 
@@ -144,7 +158,7 @@ Defined in: [qwqsocket.d.ts:121](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **arrayWithLength**(`ruleArray`, `defaultValueRule`, `minLength`, `maxLength`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:130](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L130)
+Defined in: [qwqsocket.d.ts:130](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L130)
 
 创建限制长度的 数组 类型规则
 
@@ -176,7 +190,7 @@ Defined in: [qwqsocket.d.ts:130](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **bigint**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:92](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L92)
+Defined in: [qwqsocket.d.ts:92](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L92)
 
 创建 bigint 类型规则
 
@@ -190,7 +204,7 @@ Defined in: [qwqsocket.d.ts:92](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **boolean**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:87](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L87)
+Defined in: [qwqsocket.d.ts:87](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L87)
 
 创建 boolean 类型规则
 
@@ -204,7 +218,7 @@ Defined in: [qwqsocket.d.ts:87](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **classArrayBuffer**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:153](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L153)
+Defined in: [qwqsocket.d.ts:153](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L153)
 
 创建 ArrayBuffer类 类型规则
 
@@ -218,7 +232,7 @@ Defined in: [qwqsocket.d.ts:153](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **classMap**(`keyRule?`, `valueRule?`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:137](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L137)
+Defined in: [qwqsocket.d.ts:137](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L137)
 
 创建 Map类 类型规则
 
@@ -242,7 +256,7 @@ Defined in: [qwqsocket.d.ts:137](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **classSet**(`valueRule?`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:143](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L143)
+Defined in: [qwqsocket.d.ts:143](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L143)
 
 创建 Set类 类型规则
 
@@ -262,7 +276,7 @@ Defined in: [qwqsocket.d.ts:143](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **classUint8Array**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:148](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L148)
+Defined in: [qwqsocket.d.ts:148](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L148)
 
 创建 Uint8Array类 类型规则
 
@@ -276,7 +290,7 @@ Defined in: [qwqsocket.d.ts:148](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **enum**(`valueList`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:35](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L35)
+Defined in: [qwqsocket.d.ts:35](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L35)
 
 创建枚举型规则
 
@@ -296,7 +310,7 @@ Defined in: [qwqsocket.d.ts:35](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **finite**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:63](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L63)
+Defined in: [qwqsocket.d.ts:63](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L63)
 
 创建 number 中的 有限数 类型规则
 
@@ -310,7 +324,7 @@ Defined in: [qwqsocket.d.ts:63](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **finiteRange**(`minValue`, `maxValue`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:70](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L70)
+Defined in: [qwqsocket.d.ts:70](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L70)
 
 创建 限制范围的 有限数 类型规则
 
@@ -334,7 +348,7 @@ Defined in: [qwqsocket.d.ts:70](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **integer**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:46](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L46)
+Defined in: [qwqsocket.d.ts:46](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L46)
 
 创建 number 中的 整数 类型规则
 
@@ -348,7 +362,7 @@ Defined in: [qwqsocket.d.ts:46](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **integerRange**(`minValue`, `maxValue`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:53](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L53)
+Defined in: [qwqsocket.d.ts:53](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L53)
 
 创建 限制范围的 整数 类型规则
 
@@ -372,7 +386,7 @@ Defined in: [qwqsocket.d.ts:53](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **never**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:24](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L24)
+Defined in: [qwqsocket.d.ts:24](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L24)
 
 创建 不通过 任何值的规则
 
@@ -386,7 +400,7 @@ Defined in: [qwqsocket.d.ts:24](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **nonnegativeInteger**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:58](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L58)
+Defined in: [qwqsocket.d.ts:58](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L58)
 
 创建 number 中的 非负整数 类型规则
 
@@ -400,7 +414,7 @@ Defined in: [qwqsocket.d.ts:58](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **null**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:97](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L97)
+Defined in: [qwqsocket.d.ts:97](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L97)
 
 创建 null 类型规则
 
@@ -414,7 +428,7 @@ Defined in: [qwqsocket.d.ts:97](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **number**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:41](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L41)
+Defined in: [qwqsocket.d.ts:41](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L41)
 
 创建 number 类型规则
 允许所有 number 类型
@@ -429,7 +443,7 @@ Defined in: [qwqsocket.d.ts:41](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **object**(`necessary`, `optional?`, `defaultValueRule?`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:110](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L110)
+Defined in: [qwqsocket.d.ts:110](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L110)
 
 创建 对象 类型规则
 
@@ -453,7 +467,7 @@ Defined in: [qwqsocket.d.ts:110](https://github.com/qwq0/qwqSocket/blob/f6f63c5b
 
 > `static` **string**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:75](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L75)
+Defined in: [qwqsocket.d.ts:75](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L75)
 
 创建 string 类型规则
 
@@ -467,7 +481,7 @@ Defined in: [qwqsocket.d.ts:75](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **stringWithLength**(`minLength`, `maxLength`): `RuleType`
 
-Defined in: [qwqsocket.d.ts:82](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L82)
+Defined in: [qwqsocket.d.ts:82](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L82)
 
 创建限制长度的 string 类型规则
 
@@ -491,7 +505,7 @@ Defined in: [qwqsocket.d.ts:82](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd
 
 > `static` **undefined**(): `RuleType`
 
-Defined in: [qwqsocket.d.ts:102](https://github.com/qwq0/qwqSocket/blob/f6f63c5bd599ebbf32df8b5d1b9d07fafe4c5d1f/dist/qwqsocket.d.ts#L102)
+Defined in: [qwqsocket.d.ts:102](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L102)
 
 创建 undefined 类型规则
 

@@ -20,12 +20,14 @@ export class RuleBinder
 
     /**
      * 事件名集合
+     * 包括处理后的查询名
      * @type {Set<string>}
      */
     #eventNameSet = new Set();
 
     /**
      * 事件名 到 事件规则 映射
+     * 包括处理后的查询规则
      * @type {Map<string, EventRule>}
      */
     #eventRuleMap = new Map();
@@ -41,6 +43,13 @@ export class RuleBinder
      * @type {Set<string>}
      */
     #queryNameSet = new Set();
+
+    /**
+     * 查询名 到 查询原始规则信息 映射
+     * 仅在生成类型定义时使用
+     * @type {Map<string, { req: EventRule, rsp: EventRule }>}
+     */
+    #queryRuleMap = new Map();
 
     /**
      * 绑定到指定端的事件
@@ -165,6 +174,8 @@ export class RuleBinder
 
         if (requestRule.hasKey(metaObjQueryIdKey) || responseRule.hasKey(metaObjQueryIdKey))
             throw `Cannot use internally occupied name "${metaObjQueryIdKey}"`;
+
+        this.#queryRuleMap.set(queryName, { req: requestRule, rsp: responseRule });
 
         let opposite = this.#opposite;
         if (opposite == null)
@@ -453,55 +464,42 @@ export class RuleBinder
         this.#eventNameList.forEach(o =>
         {
             let splIndex = o.lastIndexOf("-");
-            let evnetRule = this.#eventRuleMap.get(o);
             if (splIndex == -1)
             { // 事件
+                let evnetRule = this.#eventRuleMap.get(o);
                 eventDefMap.set(o, {
                     metaType: evnetRule.typeDefine()
                 });
             }
             else
             { // 查询
-                let name = o.slice(0, splIndex);
                 let suffix = o.slice(splIndex + 1);
                 if (
-                    suffix == "req" ||
-                    suffix == "rsp" ||
-                    suffix == "ersp"
+                    suffix != "req" &&
+                    suffix != "rsp" &&
+                    suffix != "ersp"
                 )
-                {
-                    let info = queryDefMap.get(name);
-                    if (!info)
-                    {
-                        info = {
-                            reqType: null,
-                            rspType: null
-                        };
-                        queryDefMap.set(name, info);
-                    }
-
-                    if (suffix == "req")
-                    {
-                        info.reqType = evnetRule.typeDefine();
-                    }
-                    else if (suffix == "rsp")
-                    {
-                        info.rspType = evnetRule.typeDefine();
-                    }
-                }
-                else
                 {
                     throw "unknow surfix name";
                 }
             }
         });
 
+        this.#queryNameSet.forEach(o =>
+        {
+            let queryRule = this.#queryRuleMap.get(o);
+            queryDefMap.set(o, {
+                reqType: queryRule.req.typeDefine(),
+                rspType: queryRule.rsp.typeDefine()
+            });
+        });
+
         return {
-            event: Array.from(eventDefMap.entries()).map(o=>({
+            event: Array.from(eventDefMap.entries()).map(o => ({
                 name: o[0],
                 metaType: o[1].metaType
             })),
-            query: Array.from(queryDefMap.entries()).map(o=>({
+            query: Array.from(queryDefMap.entries()).map(o => ({
                 name: o[0],
                 reqType: o[1].reqType,
                 rspType: o[1].rspType
