@@ -31,6 +31,7 @@ let buildInClassMap = new Map([
  */
 export class RuleType
 {
+    // -- any --
     /**
      * 任意类型
      * 跳过一切类型判定通过所有类型
@@ -38,6 +39,7 @@ export class RuleType
      */
     #any = false;
 
+    // -- number --
     /**
      * 允许 number 类型
      * @type {boolean}
@@ -81,12 +83,14 @@ export class RuleType
      */
     #numberMax = null;
 
+    // -- boolean --
     /**
      * 允许 boolean 类型
      * @type {boolean}
      */
     #boolean = false;
 
+    // -- string --
     /**
      * 允许 string 类型
      * @type {boolean}
@@ -103,12 +107,14 @@ export class RuleType
      */
     #stringMaxLength = null;
 
+    // -- bigint --
     /**
      * 允许 bigint 类型
      * @type {boolean}
      */
     #bigint = false;
 
+    // -- array --
     /**
      * 允许 数组
      * @type {boolean}
@@ -135,6 +141,7 @@ export class RuleType
      */
     #arrayMaxLength = null;
 
+    // -- object --
     /**
      * 允许 对象 (不包括 数组)
      * @type {boolean}
@@ -157,6 +164,7 @@ export class RuleType
      */
     #defaultValueRule = null;
 
+    // -- 内置类 --
     /**
      * 允许 js内置类
      * @type {boolean}
@@ -178,6 +186,7 @@ export class RuleType
      */
     #classValueType = null;
 
+    // -- void --
     /**
      * 允许 null
      * @type {boolean}
@@ -189,6 +198,7 @@ export class RuleType
      */
     #enableUndefined = false;
 
+    // -- enum --
     /**
      * 枚举类型的值
      * 表示总允许此集合的值
@@ -340,6 +350,9 @@ export class RuleType
                         case "Uint8Array": {
                             return true;
                         }
+                        case "ArrayBuffer": {
+                            return true;
+                        }
                         default: {
                             return false;
                         }
@@ -350,8 +363,9 @@ export class RuleType
                     if (!this.#object)
                         return false;
 
-                    // if (Object.getPrototypeOf(value) != Object.prototype)
-                    //     return;
+                    // if (Object.getPrototypeOf(value) != Object.prototype || Object.getPrototypeOf(value) != null)
+                    //     return false;
+                    // TODO 添加可选的原型校验
 
                     if (
                         this.#necessaryKey.size == 0 &&
@@ -858,9 +872,9 @@ export class RuleType
 
     /**
      * 创建 对象 类型规则
-     * @param {Object<string, RuleType>} necessary
-     * @param {Object<string, RuleType>} [optional]
-     * @param {RuleType} [defaultValueRule]
+     * @param {Object<string, RuleType>} necessary 必须有的成员
+     * @param {Object<string, RuleType>} [optional] 可以有的成员
+     * @param {RuleType} [defaultValueRule] 如果设置 则允许任何键的成员
      * @returns {RuleType}
      */
     static object(necessary, optional = {}, defaultValueRule = null)
@@ -1007,40 +1021,54 @@ function mergeParent(a, b)
     parentStateB = b;
     return a || b;
 }
+
+/**
+ * 类型规则合并函数运行的参数
+ * @typedef {number | string | RuleType | Array | Set | Map} RuleMergeFuncAllowParamType
+ */
+
 /**
  * 求交值 取其中的非空内容
  * 其中一个为null返回另一个值
  * 当两个都非空且不相等时抛错
- * @param {any} a
- * @param {any} b
+ * @template {RuleMergeFuncAllowParamType} T
+ * @param {T} a
+ * @param {T} b
+ * @returns {T}
  */
 function intersectNonNull(a, b)
 {
-    if ((!parentStateA) || (!parentStateB))
+    if (!(parentStateA && parentStateB))
         return null;
-    if (a == b)
+    else if (a == b)
         return a;
-    if (a != null && b != null)
+    else if (a == null || b == null)
+        return (a != null ? a : b);
+    else // ab都非空且不相等
         throw "Unable to intersect RuleType with conflicting types";
-    return (a != null ? a : b);
 }
 /**
  * 合并值 取相同值
  * 当其中一侧父限制为真时 返回这一侧的值
  * 当父限制同时为真时 其中一个为null时为null
  * 都不为null且两个值不相同时报错
- * @param {any} a
- * @param {any} b
+ * @template {RuleMergeFuncAllowParamType} T
+ * @param {T} a
+ * @param {T} b
+ * @returns {T}
  */
 function mergeSame(a, b)
 {
-    if (!parentStateA)
-        return b;
-    if (!parentStateB)
-        return a;
-    if (a == null || b == null)
+    if ((!parentStateA) && (!parentStateB))
         return null;
-    if (a != b)
+    else if (!parentStateA)
+        return b;
+    else if (!parentStateB)
+        return a;
+    else if (a == null || b == null)
+        return null;
+    else if (a == b)
+        return a;
+    else // ab都非空且不相等
         throw "Unable to merge Ruletypes with conflicting types";
-    return a;
 }

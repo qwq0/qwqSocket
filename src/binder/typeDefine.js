@@ -1,6 +1,7 @@
 import { RuleBinder } from "./RuleBinder.js";
 
 /**
+ * 逐行添加缩进
  * @param {string} str
  * @param {number} level
  * @param {boolean} ignoreFirstLine

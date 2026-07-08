@@ -1646,7 +1646,7 @@ class QwQSocketServerClient
 
     /**
      * 客户端的自定义数据
-     * @type {object}
+     * @type {{ [x: string | number | symbol]: any }}
      */
     data = {};
 
@@ -1883,7 +1883,7 @@ class QwQSocketClient
 
     /**
      * 客户端的自定义数据
-     * @type {object}
+     * @type {{ [x: string | number | symbol]: any }}
      */
     data = {};
 
@@ -2594,6 +2594,9 @@ class RuleBinder
 
     /**
      * 应用到实例
+     *  - 对于 Server 设置事件规则
+     *  - 对于 ServerClient 设置监听器函数
+     *  - 对于 Client 同时设置事件规则与监听器
      * @param {QwQSocketServer | QwQSocketServerClient | QwQSocketClient} target
      */
     applyToInstance(target)

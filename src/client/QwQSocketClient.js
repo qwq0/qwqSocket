@@ -48,7 +48,7 @@ export class QwQSocketClient
 
     /**
      * 客户端的自定义数据
-     * @type {object}
+     * @type {{ [x: string | number | symbol]: any }}
      */
     data = {};
 

@@ -2,7 +2,7 @@ import { EventRule } from "./EventRule.js";
 import { RuleType } from "./RuleType.js";
 
 /**
- * 映射规则
+ * 事件与规则的映射上下文
  */
 export class MappingRules
 {

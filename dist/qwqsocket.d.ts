@@ -102,9 +102,9 @@ declare class RuleType {
     static undefined(): RuleType;
     /**
      * 创建 对象 类型规则
-     * @param {Object<string, RuleType>} necessary
-     * @param {Object<string, RuleType>} [optional]
-     * @param {RuleType} [defaultValueRule]
+     * @param {Object<string, RuleType>} necessary 必须有的成员
+     * @param {Object<string, RuleType>} [optional] 可以有的成员
+     * @param {RuleType} [defaultValueRule] 如果设置 则允许任何键的成员
      * @returns {RuleType}
      */
     static object(necessary: {
@@ -182,7 +182,7 @@ declare class RuleType {
 }
 
 /**
- * 映射规则
+ * 事件与规则的映射上下文
  */
 declare class MappingRules {
     /**
@@ -404,9 +404,11 @@ declare class QwQSocketServerClient {
     }>;
     /**
      * 客户端的自定义数据
-     * @type {object}
+     * @type {{ [x: string | number | symbol]: any }}
      */
-    data: object;
+    data: {
+        [x: string | number | symbol]: any;
+    };
     /**
      * 事件监听器
      * @type {Object<string, (eventMetaObj: object, client: QwQSocketServerClient) => void>}
@@ -468,9 +470,11 @@ declare class QwQSocketClient {
     }>;
     /**
      * 客户端的自定义数据
-     * @type {object}
+     * @type {{ [x: string | number | symbol]: any }}
      */
-    data: object;
+    data: {
+        [x: string | number | symbol]: any;
+    };
     /**
      * 事件监听器
      * @type {Object<string, (eventMetaObj: object, client: QwQSocketClient) => void>}

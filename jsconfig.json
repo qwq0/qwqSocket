@@ -5,6 +5,8 @@
         "target": "ES2022",
         "module": "ESNext",
         "moduleResolution": "bundler",
+        "noImplicitAny": false,
+        "strictNullChecks": false,
         "paths": {
         }
     }
