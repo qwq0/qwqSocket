@@ -90,6 +90,7 @@ export class EventRule
     {
         if (!Array.isArray(newKeyList))
             throw "type error";
+        // TODO 此处应当支持客户端与服务端类型信息不同的场景(若客户端选择不进行类型检查)
         if (newKeyList.length != this.metaObjKeyList.length)
             throw "The reset keylist has a different length";
         /**
@@ -207,7 +208,7 @@ export class EventRule
         let ret = [];
         this.metaObjKeyList.forEach((key, index) =>
         {
-            if (Object.hasOwn(srcObj, key))
+            if (Object.hasOwn(srcObj, key) && srcObj[key] !== undefined)
             {
                 ret[index] = srcObj[key];
             }
