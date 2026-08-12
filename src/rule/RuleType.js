@@ -605,6 +605,8 @@ export class RuleType
          */
         let orList = [];
 
+        if (this.#any)
+            orList.push("any");
         if (this.#number)
             orList.push("number");
         if (this.#boolean)
@@ -667,6 +669,33 @@ export class RuleType
             orList.push("null");
         if (this.#enableUndefined)
             orList.push("undefined");
+        if (this.#enumSet && this.#enumSet.size > 0)
+        {
+            this.#enumSet.forEach(o =>
+            {
+                let type = typeof (o);
+                if (
+                    type == "number" ||
+                    type == "boolean" ||
+                    type == "string"
+                )
+                {
+                    orList.push(JSON.stringify(o));
+                }
+                else if (type == "bigint")
+                {
+                    orList.push(o.toString() + "n");
+                }
+                else if (type == "undefined")
+                {
+                    orList.push("undefined");
+                }
+                else if (o === null)
+                {
+                    orList.push("null");
+                }
+            });
+        }
 
         if (orList.length == 0)
             return "never";

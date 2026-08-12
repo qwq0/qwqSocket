@@ -1,7 +1,28 @@
-import { QwQSocketClient, QwQSocketServer, QwQSocketServerClient, RuleType } from "../index.js";
+import { QwQSocketClient } from "../client/QwQSocketClient.js";
 import { EventRule } from "../rule/EventRule.js";
+import { RuleType } from "../rule/RuleType.js";
+import { QwQSocketServer } from "../server/QwQSocketServer.js";
+import { QwQSocketServerClient } from "../server/QwQSocketServerClient.js";
 import { BinderOperator } from "./BinderOperator.js";
 import { QueryError } from "./QueryError.js";
+
+/**
+ * 事件监听器函数
+ * @typedef {(
+ *  ((eventMetaObj: any, target: QwQSocketServerClient | QwQSocketClient) => void) |
+ *  ((eventMetaObj: any, target: QwQSocketServerClient) => void) |
+ *  ((eventMetaObj: any, target: QwQSocketClient) => void)
+ * )} QwQSocketEventListener
+ */
+
+/**
+ * 查询处理器函数
+ * @typedef {(
+ *  ((eventMetaObj: any, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)) |
+ *  ((eventMetaObj: any, target: QwQSocketServerClient) => (Promise<any> | any)) |
+ *  ((eventMetaObj: any, target: QwQSocketClient) => (Promise<any> | any))
+ * )} QwQSocketQueryProcessor
+ */
 
 const metaObjQueryIdKey = "-query-id";
 const metaObjCauseKey = "-cause";
@@ -34,7 +55,7 @@ export class RuleBinder
 
     /**
      * 事件名 到 事件监听器 映射
-     * @type {Map<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void>}
+     * @type {Map<string, QwQSocketEventListener>}
      */
     #eventListenerMap = new Map();
 
@@ -130,7 +151,7 @@ export class RuleBinder
     /**
      * 设置事件监听器
      * @param {string} eventName
-     * @param {(eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void} listener
+     * @param {QwQSocketEventListener} listener
      */
     setEventListener(eventName, listener)
     {
@@ -145,7 +166,7 @@ export class RuleBinder
 
     /**
      * 设置多个事件监听器
-     * @param {Object<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void>} eventListeners
+     * @param {Object<string, QwQSocketEventListener>} eventListeners
      */
     setEventListeners(eventListeners)
     {
@@ -233,7 +254,7 @@ export class RuleBinder
     /**
      * 设置查询处理函数
      * @param {string} queryName
-     * @param {(eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)} processor
+     * @param {QwQSocketQueryProcessor} processor
      */
     setQueryProcessor(queryName, processor)
     {
@@ -297,7 +318,7 @@ export class RuleBinder
 
     /**
      * 设置多个查询处理函数
-     * @param {Object<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => any>} queryProcessors
+     * @param {Object<string, QwQSocketQueryProcessor>} queryProcessors
      */
     setQueryProcessors(queryProcessors)
     {

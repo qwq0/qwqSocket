@@ -6,8 +6,9 @@
         "module": "ESNext",
         "moduleResolution": "bundler",
         "noImplicitAny": false,
-        "strictNullChecks": false,
-        "paths": {
-        }
-    }
+        "strictNullChecks": false
+    },
+    "exclude": [
+        "dist/"
+    ]
 }

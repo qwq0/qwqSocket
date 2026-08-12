@@ -15,6 +15,7 @@ export class QwQSocketServerClient
     /**
      * 此服务器实例的映射规则
      * 表示服务端触发的事件相关规则
+     * 在整个 服务端实例 间共享
      * @type {MappingRules}
      */
     #serverMappingRules = null;
@@ -22,6 +23,7 @@ export class QwQSocketServerClient
     /**
      * 客户端的映射规则
      * 表示客户端触发的事件相关规则
+     * 在整个 服务端实例 间共享
      * @type {MappingRules}
      */
     #clientMappingRules = null;
@@ -66,6 +68,7 @@ export class QwQSocketServerClient
     /**
      * 创建客户端实例
      * @param {import("./QwQSocketServer").QwQSocketServer} server
+     * @returns {QwQSocketServerClient}
      */
     static create(server)
     {

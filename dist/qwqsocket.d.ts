@@ -392,6 +392,7 @@ declare class QwQSocketServerClient {
     /**
      * 创建客户端实例
      * @param {import("./QwQSocketServer").QwQSocketServer} server
+     * @returns {QwQSocketServerClient}
      */
     static create(server: QwQSocketServer): QwQSocketServerClient;
     /**
@@ -606,15 +607,15 @@ declare class RuleBinder {
     /**
      * 设置事件监听器
      * @param {string} eventName
-     * @param {(eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void} listener
+     * @param {QwQSocketEventListener} listener
      */
-    setEventListener(eventName: string, listener: (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void): void;
+    setEventListener(eventName: string, listener: QwQSocketEventListener): void;
     /**
      * 设置多个事件监听器
-     * @param {Object<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void>} eventListeners
+     * @param {Object<string, QwQSocketEventListener>} eventListeners
      */
     setEventListeners(eventListeners: {
-        [x: string]: (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void;
+        [x: string]: QwQSocketEventListener;
     }): void;
     /**
      * 添加查询规则
@@ -636,15 +637,15 @@ declare class RuleBinder {
     /**
      * 设置查询处理函数
      * @param {string} queryName
-     * @param {(eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)} processor
+     * @param {QwQSocketQueryProcessor} processor
      */
-    setQueryProcessor(queryName: string, processor: (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)): void;
+    setQueryProcessor(queryName: string, processor: QwQSocketQueryProcessor): void;
     /**
      * 设置多个查询处理函数
-     * @param {Object<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => any>} queryProcessors
+     * @param {Object<string, QwQSocketQueryProcessor>} queryProcessors
      */
     setQueryProcessors(queryProcessors: {
-        [x: string]: (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => any;
+        [x: string]: QwQSocketQueryProcessor;
     }): void;
     /**
      * 应用到实例
@@ -695,13 +696,42 @@ declare class RuleBinder {
     };
     #private;
 }
+/**
+ * 事件监听器函数
+ */
+type QwQSocketEventListener = (((eventMetaObj: any, target: QwQSocketServerClient | QwQSocketClient) => void) | ((eventMetaObj: any, target: QwQSocketServerClient) => void) | ((eventMetaObj: any, target: QwQSocketClient) => void));
+/**
+ * 查询处理器函数
+ */
+type QwQSocketQueryProcessor = (((eventMetaObj: any, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)) | ((eventMetaObj: any, target: QwQSocketServerClient) => (Promise<any> | any)) | ((eventMetaObj: any, target: QwQSocketClient) => (Promise<any> | any)));
 
 /**
  * 通过绑定器生成类型定义文件
  * @param {RuleBinder} serverBinder
  * @param {RuleBinder} clientBinder
+ * @param {{
+ *  extend?: {
+ *      lisienerBind?: boolean,
+ *      lisienerBindType?: "type" | "interface" | "namespace",
+ *      importModuleName?: string,
+ *      importClientType?: boolean
+ *  },
+ *  preset?: {
+ *      lisienerBind?: boolean | "type" | "interface" | "namespace"
+ *  }
+ * }} [options]
  * @returns {string}
  */
-declare function getTypeDefineByBinder(serverBinder: RuleBinder, clientBinder: RuleBinder): string;
+declare function getTypeDefineByBinder(serverBinder: RuleBinder, clientBinder: RuleBinder, options?: {
+    extend?: {
+        lisienerBind?: boolean;
+        lisienerBindType?: "type" | "interface" | "namespace";
+        importModuleName?: string;
+        importClientType?: boolean;
+    };
+    preset?: {
+        lisienerBind?: boolean | "type" | "interface" | "namespace";
+    };
+} | undefined): string;
 
 export { BinderOperator, EventRule, QueryError, QueryTimeoutError, QwQSocketClient, QwQSocketServer, QwQSocketServerClient, RuleBinder, RuleType, getTypeDefineByBinder };

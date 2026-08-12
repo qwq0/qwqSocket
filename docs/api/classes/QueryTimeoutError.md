@@ -6,7 +6,7 @@
 
 # Class: QueryTimeoutError
 
-Defined in: [qwqsocket.d.ts:563](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L563)
+Defined in: [qwqsocket.d.ts:568](https://github.com/qwq0/qwqSocket/blob/457d813c35c0c89201d779d2228a0ecc7c7b8182/dist/qwqsocket.d.ts#L568)
 
 查询超时错误
 当发起查询超时时抛出
@@ -21,7 +21,7 @@ Defined in: [qwqsocket.d.ts:563](https://github.com/qwq0/qwqSocket/blob/0fa673c2
 
 > **new QueryTimeoutError**(): `QueryTimeoutError`
 
-Defined in: [qwqsocket.d.ts:564](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L564)
+Defined in: [qwqsocket.d.ts:569](https://github.com/qwq0/qwqSocket/blob/457d813c35c0c89201d779d2228a0ecc7c7b8182/dist/qwqsocket.d.ts#L569)
 
 #### Returns
 
@@ -37,7 +37,7 @@ Defined in: [qwqsocket.d.ts:564](https://github.com/qwq0/qwqSocket/blob/0fa673c2
 
 > **cause**: `string`
 
-Defined in: [qwqsocket.d.ts:555](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L555)
+Defined in: [qwqsocket.d.ts:560](https://github.com/qwq0/qwqSocket/blob/457d813c35c0c89201d779d2228a0ecc7c7b8182/dist/qwqsocket.d.ts#L560)
 
 错误原因
 
@@ -51,7 +51,7 @@ Defined in: [qwqsocket.d.ts:555](https://github.com/qwq0/qwqSocket/blob/0fa673c2
 
 > **toString**(): `string`
 
-Defined in: [qwqsocket.d.ts:556](https://github.com/qwq0/qwqSocket/blob/0fa673c2c9bd391101242adbc78ce27a072a231b/dist/qwqsocket.d.ts#L556)
+Defined in: [qwqsocket.d.ts:561](https://github.com/qwq0/qwqSocket/blob/457d813c35c0c89201d779d2228a0ecc7c7b8182/dist/qwqsocket.d.ts#L561)
 
 #### Returns
 

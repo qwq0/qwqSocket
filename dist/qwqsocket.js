@@ -31,6 +31,7 @@ let buildInClassMap = new Map([
  */
 class RuleType
 {
+    // -- any --
     /**
      * 任意类型
      * 跳过一切类型判定通过所有类型
@@ -38,6 +39,7 @@ class RuleType
      */
     #any = false;
 
+    // -- number --
     /**
      * 允许 number 类型
      * @type {boolean}
@@ -81,12 +83,14 @@ class RuleType
      */
     #numberMax = null;
 
+    // -- boolean --
     /**
      * 允许 boolean 类型
      * @type {boolean}
      */
     #boolean = false;
 
+    // -- string --
     /**
      * 允许 string 类型
      * @type {boolean}
@@ -103,12 +107,14 @@ class RuleType
      */
     #stringMaxLength = null;
 
+    // -- bigint --
     /**
      * 允许 bigint 类型
      * @type {boolean}
      */
     #bigint = false;
 
+    // -- array --
     /**
      * 允许 数组
      * @type {boolean}
@@ -135,6 +141,7 @@ class RuleType
      */
     #arrayMaxLength = null;
 
+    // -- object --
     /**
      * 允许 对象 (不包括 数组)
      * @type {boolean}
@@ -157,6 +164,7 @@ class RuleType
      */
     #defaultValueRule = null;
 
+    // -- 内置类 --
     /**
      * 允许 js内置类
      * @type {boolean}
@@ -178,6 +186,7 @@ class RuleType
      */
     #classValueType = null;
 
+    // -- void --
     /**
      * 允许 null
      * @type {boolean}
@@ -189,6 +198,7 @@ class RuleType
      */
     #enableUndefined = false;
 
+    // -- enum --
     /**
      * 枚举类型的值
      * 表示总允许此集合的值
@@ -340,6 +350,9 @@ class RuleType
                         case "Uint8Array": {
                             return true;
                         }
+                        case "ArrayBuffer": {
+                            return true;
+                        }
                         default: {
                             return false;
                         }
@@ -350,8 +363,9 @@ class RuleType
                     if (!this.#object)
                         return false;
 
-                    // if (Object.getPrototypeOf(value) != Object.prototype)
-                    //     return;
+                    // if (Object.getPrototypeOf(value) != Object.prototype || Object.getPrototypeOf(value) != null)
+                    //     return false;
+                    // TODO 添加可选的原型校验
 
                     if (
                         this.#necessaryKey.size == 0 &&
@@ -591,6 +605,8 @@ class RuleType
          */
         let orList = [];
 
+        if (this.#any)
+            orList.push("any");
         if (this.#number)
             orList.push("number");
         if (this.#boolean)
@@ -653,6 +669,33 @@ class RuleType
             orList.push("null");
         if (this.#enableUndefined)
             orList.push("undefined");
+        if (this.#enumSet && this.#enumSet.size > 0)
+        {
+            this.#enumSet.forEach(o =>
+            {
+                let type = typeof (o);
+                if (
+                    type == "number" ||
+                    type == "boolean" ||
+                    type == "string"
+                )
+                {
+                    orList.push(JSON.stringify(o));
+                }
+                else if (type == "bigint")
+                {
+                    orList.push(o.toString() + "n");
+                }
+                else if (type == "undefined")
+                {
+                    orList.push("undefined");
+                }
+                else if (o === null)
+                {
+                    orList.push("null");
+                }
+            });
+        }
 
         if (orList.length == 0)
             return "never";
@@ -858,9 +901,9 @@ class RuleType
 
     /**
      * 创建 对象 类型规则
-     * @param {Object<string, RuleType>} necessary
-     * @param {Object<string, RuleType>} [optional]
-     * @param {RuleType} [defaultValueRule]
+     * @param {Object<string, RuleType>} necessary 必须有的成员
+     * @param {Object<string, RuleType>} [optional] 可以有的成员
+     * @param {RuleType} [defaultValueRule] 如果设置 则允许任何键的成员
      * @returns {RuleType}
      */
     static object(necessary, optional = {}, defaultValueRule = null)
@@ -1007,42 +1050,56 @@ function mergeParent(a, b)
     parentStateB = b;
     return a || b;
 }
+
+/**
+ * 类型规则合并函数运行的参数
+ * @typedef {number | string | RuleType | Array | Set | Map} RuleMergeFuncAllowParamType
+ */
+
 /**
  * 求交值 取其中的非空内容
  * 其中一个为null返回另一个值
  * 当两个都非空且不相等时抛错
- * @param {any} a
- * @param {any} b
+ * @template {RuleMergeFuncAllowParamType} T
+ * @param {T} a
+ * @param {T} b
+ * @returns {T}
  */
 function intersectNonNull(a, b)
 {
-    if ((!parentStateA) || (!parentStateB))
+    if (!(parentStateA && parentStateB))
         return null;
-    if (a == b)
+    else if (a == b)
         return a;
-    if (a != null && b != null)
+    else if (a == null || b == null)
+        return (a != null ? a : b);
+    else // ab都非空且不相等
         throw "Unable to intersect RuleType with conflicting types";
-    return (a != null ? a : b);
 }
 /**
  * 合并值 取相同值
  * 当其中一侧父限制为真时 返回这一侧的值
  * 当父限制同时为真时 其中一个为null时为null
  * 都不为null且两个值不相同时报错
- * @param {any} a
- * @param {any} b
+ * @template {RuleMergeFuncAllowParamType} T
+ * @param {T} a
+ * @param {T} b
+ * @returns {T}
  */
 function mergeSame(a, b)
 {
-    if (!parentStateA)
-        return b;
-    if (!parentStateB)
-        return a;
-    if (a == null || b == null)
+    if ((!parentStateA) && (!parentStateB))
         return null;
-    if (a != b)
+    else if (!parentStateA)
+        return b;
+    else if (!parentStateB)
+        return a;
+    else if (a == null || b == null)
+        return null;
+    else if (a == b)
+        return a;
+    else // ab都非空且不相等
         throw "Unable to merge Ruletypes with conflicting types";
-    return a;
 }
 
 /**
@@ -1135,6 +1192,7 @@ class EventRule
     {
         if (!Array.isArray(newKeyList))
             throw "type error";
+        // TODO 此处应当支持客户端与服务端类型信息不同的场景(若客户端选择不进行类型检查)
         if (newKeyList.length != this.metaObjKeyList.length)
             throw "The reset keylist has a different length";
         /**
@@ -1252,7 +1310,7 @@ class EventRule
         let ret = [];
         this.metaObjKeyList.forEach((key, index) =>
         {
-            if (Object.hasOwn(srcObj, key))
+            if (Object.hasOwn(srcObj, key) && srcObj[key] !== undefined)
             {
                 ret[index] = srcObj[key];
             }
@@ -1370,7 +1428,7 @@ class EventRule
 }
 
 /**
- * 映射规则
+ * 事件与规则的映射上下文
  */
 class MappingRules
 {
@@ -1627,6 +1685,7 @@ class QwQSocketServerClient
     /**
      * 此服务器实例的映射规则
      * 表示服务端触发的事件相关规则
+     * 在整个 服务端实例 间共享
      * @type {MappingRules}
      */
     #serverMappingRules = null;
@@ -1634,6 +1693,7 @@ class QwQSocketServerClient
     /**
      * 客户端的映射规则
      * 表示客户端触发的事件相关规则
+     * 在整个 服务端实例 间共享
      * @type {MappingRules}
      */
     #clientMappingRules = null;
@@ -1678,6 +1738,7 @@ class QwQSocketServerClient
     /**
      * 创建客户端实例
      * @param {import("./QwQSocketServer").QwQSocketServer} server
+     * @returns {QwQSocketServerClient}
      */
     static create(server)
     {
@@ -2288,6 +2349,24 @@ class BinderOperator
     }
 }
 
+/**
+ * 事件监听器函数
+ * @typedef {(
+ *  ((eventMetaObj: any, target: QwQSocketServerClient | QwQSocketClient) => void) |
+ *  ((eventMetaObj: any, target: QwQSocketServerClient) => void) |
+ *  ((eventMetaObj: any, target: QwQSocketClient) => void)
+ * )} QwQSocketEventListener
+ */
+
+/**
+ * 查询处理器函数
+ * @typedef {(
+ *  ((eventMetaObj: any, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)) |
+ *  ((eventMetaObj: any, target: QwQSocketServerClient) => (Promise<any> | any)) |
+ *  ((eventMetaObj: any, target: QwQSocketClient) => (Promise<any> | any))
+ * )} QwQSocketQueryProcessor
+ */
+
 const metaObjQueryIdKey = "-query-id";
 const metaObjCauseKey = "-cause";
 
@@ -2319,7 +2398,7 @@ class RuleBinder
 
     /**
      * 事件名 到 事件监听器 映射
-     * @type {Map<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void>}
+     * @type {Map<string, QwQSocketEventListener>}
      */
     #eventListenerMap = new Map();
 
@@ -2415,7 +2494,7 @@ class RuleBinder
     /**
      * 设置事件监听器
      * @param {string} eventName
-     * @param {(eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void} listener
+     * @param {QwQSocketEventListener} listener
      */
     setEventListener(eventName, listener)
     {
@@ -2430,7 +2509,7 @@ class RuleBinder
 
     /**
      * 设置多个事件监听器
-     * @param {Object<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => void>} eventListeners
+     * @param {Object<string, QwQSocketEventListener>} eventListeners
      */
     setEventListeners(eventListeners)
     {
@@ -2518,7 +2597,7 @@ class RuleBinder
     /**
      * 设置查询处理函数
      * @param {string} queryName
-     * @param {(eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => (Promise<any> | any)} processor
+     * @param {QwQSocketQueryProcessor} processor
      */
     setQueryProcessor(queryName, processor)
     {
@@ -2582,7 +2661,7 @@ class RuleBinder
 
     /**
      * 设置多个查询处理函数
-     * @param {Object<string, (eventMetaObj: object, target: QwQSocketServerClient | QwQSocketClient) => any>} queryProcessors
+     * @param {Object<string, QwQSocketQueryProcessor>} queryProcessors
      */
     setQueryProcessors(queryProcessors)
     {
@@ -2819,11 +2898,13 @@ class RuleBinder
 }
 
 /**
+ * 逐行添加缩进
  * @param {string} str
  * @param {number} level
  * @param {boolean} ignoreFirstLine
+ * @returns {string}
  */
-function addIndent(str, level, ignoreFirstLine)
+function addIndent(str, level = 1, ignoreFirstLine = false)
 {
     let indent = "";
     for (let i = 0; i < level; i++)
@@ -2832,75 +2913,216 @@ function addIndent(str, level, ignoreFirstLine)
 }
 
 /**
+ * 给字符串收尾添加引号
+ * @param {string} str
+ * @returns {string}
+ */
+function strQuote(str)
+{
+    if (typeof (str) != "string")
+        throw "strQuote param is not string";
+    return JSON.stringify(str);
+}
+
+/**
  * 通过绑定器生成类型定义文件
  * @param {RuleBinder} serverBinder
  * @param {RuleBinder} clientBinder
+ * @param {{ 
+ *  extend?: {
+ *      lisienerBind?: boolean,
+ *      lisienerBindType?: "type" | "interface" | "namespace",
+ *      importModuleName?: string,
+ *      importClientType?: boolean
+ *  },
+ *  preset?: {
+ *      lisienerBind?: boolean | "type" | "interface" | "namespace"
+ *  }
+ * }} [options]
  * @returns {string}
  */
-function getTypeDefineByBinder(serverBinder, clientBinder)
+function getTypeDefineByBinder(serverBinder, clientBinder, options = {})
 {
+    options = Object.assign({}, options);
+    for (let key of ["extend", "preset"])
+    {
+        if (options[key])
+            options[key] = Object.assign({}, options[key]);
+        else
+            options[key] = {};
+    }
+
+    // 预设配置
+    if (options.preset.lisienerBind)
+    {
+        options.extend.lisienerBind = true;
+        options.extend.importClientType = true;
+        if (typeof (options.preset.lisienerBind) == "string")
+            options.extend.lisienerBindType = options.preset.lisienerBind;
+        else
+            options.extend.lisienerBindType = "type";
+    }
+
     let serverDefine = serverBinder.genTypeDefine();
     let clientDefine = clientBinder.genTypeDefine();
 
     let ret = "";
     let separator = "\n\n";
-    let indentation = "    ";
+
+    // --- 事件类型 ---
 
     ret += ([
         "export type serverBinderEventMap = {",
-        serverDefine.event.map(o => `${indentation}${o.name}: ${addIndent(o.metaType, 1, true)};`).join("\n"),
-        "}"
+        serverDefine.event.map(o => addIndent(`${o.name}: ${o.metaType};`)).join("\n"),
+        "};"
     ]).join("\n") + separator;
+
     ret += ([
         "export type serverBinderQueryMap = {",
-        serverDefine.query.map(o => ([
-            `${indentation}${o.name}: {`,
-            `${indentation}${indentation}req: ${addIndent(o.reqType, 2, true)};`,
-            `${indentation}${indentation}rsp: ${addIndent(o.rspType, 2, true)};`,
-            `${indentation}};`
-        ]).join("\n")).join("\n"),
-        "}"
+        addIndent(
+            serverDefine.query.map(o => ([
+                `${o.name}: {`,
+                addIndent(`req: ${o.reqType};`),
+                addIndent(`rsp: ${o.rspType};`),
+                `};`
+            ]).join("\n")).join("\n")
+        ),
+        "};"
     ]).join("\n") + separator;
 
 
     ret += ([
         "export type clientBinderEventMap = {",
-        clientDefine.event.map(o => `${indentation}${o.name}: ${addIndent(o.metaType, 1, true)};`).join("\n"),
-        "}"
-    ]).join("\n") + separator;
-    ret += ([
-        "export type clientBinderQueryMap = {",
-        clientDefine.query.map(o => ([
-            `${indentation}${o.name}: {`,
-            `${indentation}${indentation}req: ${addIndent(o.reqType, 2, true)};`,
-            `${indentation}${indentation}rsp: ${addIndent(o.rspType, 2, true)};`,
-            `${indentation}};`
-        ]).join("\n")).join("\n"),
-        "}"
+        clientDefine.event.map(o => addIndent(`${o.name}: ${o.metaType};`)).join("\n"),
+        "};"
     ]).join("\n") + separator;
 
     ret += ([
+        "export type clientBinderQueryMap = {",
+        addIndent(
+            clientDefine.query.map(o => ([
+                `${o.name}: {`,
+                addIndent(`req: ${o.reqType};`),
+                addIndent(`rsp: ${o.rspType};`),
+                `};`
+            ]).join("\n")).join("\n"),
+        ),
+        "};"
+    ]).join("\n") + separator;
+
+    // --- 操作器 ---
+
+    let extendContent = ([
         "export interface ServerSocketOperator",
         "{",
         "    trigger: {",
-        "        [K in keyof clientBinderEventMap]?: (e: clientBinderEventMap[K]) => void",
+        "        [K in keyof clientBinderEventMap]?: (e: clientBinderEventMap[K]) => void;",
         "    };",
         "    query: {",
-        `        [K in keyof clientBinderQueryMap]?: (e: clientBinderQueryMap[K]["req"]) => Promise<clientBinderQueryMap[K]["rsp"]>`,
+        `        [K in keyof clientBinderQueryMap]?: (e: clientBinderQueryMap[K]["req"]) => Promise<clientBinderQueryMap[K]["rsp"]>;`,
         "    };",
         "}",
         "",
         "export interface ClientSocketOperator",
         "{",
         "    trigger: {",
-        "        [K in keyof serverBinderEventMap]?: (e: serverBinderEventMap[K]) => void",
+        "        [K in keyof serverBinderEventMap]?: (e: serverBinderEventMap[K]) => void;",
         "    };",
         "    query: {",
-        `        [K in keyof serverBinderQueryMap]?: (e: serverBinderQueryMap[K]["req"]) => Promise<serverBinderQueryMap[K]["rsp"]>`,
+        `        [K in keyof serverBinderQueryMap]?: (e: serverBinderQueryMap[K]["req"]) => Promise<serverBinderQueryMap[K]["rsp"]>;`,
         "    };",
         "}",
-    ]).join("\n") + separator;
+        ""
+    ]);
 
+    // --- 扩展内容 ---
+
+    if (options.extend.importClientType)
+    { // 导入客户端类型
+        let importModule = options.extend.importModuleName;
+        if (!importModule)
+        {
+            importModule = "qwq-socket";
+        }
+        extendContent.push(...([
+            `type QwQSocketClient = import(${strQuote(importModule)}).QwQSocketClient;`,
+            `type QwQSocketServerClient = import(${strQuote(importModule)}).QwQSocketServerClient;`,
+            ""
+        ]));
+    }
+
+    if (options.extend.lisienerBind)
+    { // 监听器绑定
+
+        /**
+         * 监听器类型块
+         * @param {"Server" | "Client"} direction
+         * @param {"event" | "query"} oper
+         * @param {"type" | "interface" | "namespace"} type
+         * @returns {string}
+         */
+        function listenerTypeBlock(direction, oper, type)
+        {
+            let useTypeName = `${direction == "Server" ? "server" : "client"}Binder${oper == "query" ? "Query" : "Event"}Map`;
+
+            /**
+             * 监听器类型单行
+             * @param {string} name
+             * @returns {string}
+             */
+            function listenerFunctionType(name)
+            {
+                return (
+                    `(e: ${useTypeName}[${name}]${oper == "query" ? `["req"]` : ""}, client: ${direction == "Server" ? "QwQSocketServerClient" : "QwQSocketClient"})` +
+                    ` => ${oper == "query" ? `${useTypeName}[K]["rsp"] | Promise<${useTypeName}[K]["rsp"]>` : "void"}`
+                );
+            }
+
+            /**
+             * 监听器类型行
+             * @returns {string}
+             */
+            function listenerTypeLines()
+            {
+                if (type == "type")
+                {
+                    return `    [K in keyof ${useTypeName}]?: ${listenerFunctionType("K")};`;
+                }
+                else
+                {
+                    let arr = (direction == "Server" ? serverDefine : clientDefine)[oper];
+                    return arr.map((/** @type {{ name: string; }} */ o) =>
+                        `    ${type == "interface" ? `${o.name}:` : `type ${o.name} =`} ${listenerFunctionType(strQuote(o.name))};`
+                    ).join("\n");
+                }
+            }
+
+            return ([
+                `export ${type} ${direction}Bind${oper == "query" ? "QueryProcessor" : "EventLisiener"}${type == "type" ? " = " : "\n"}{`,
+                listenerTypeLines(),
+                "}"
+            ]).join("\n");
+        }
+
+        let exportType = options.extend.lisienerBindType;
+        if (!exportType)
+        {
+            exportType = "type";
+        }
+
+        extendContent.push(...([
+            listenerTypeBlock("Server", "event", exportType),
+            "",
+            listenerTypeBlock("Server", "query", exportType),
+            "",
+            listenerTypeBlock("Client", "event", exportType),
+            "",
+            listenerTypeBlock("Client", "query", exportType),
+            ""
+        ]));
+    }
+
+    ret += extendContent.join("\n") + separator;
     return ret;
 }
 
